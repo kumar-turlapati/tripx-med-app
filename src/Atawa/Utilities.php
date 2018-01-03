@@ -325,18 +325,12 @@ class Utilities
   }
 
   public static function get_host_environment_key($environment='') {
-    if(isset($_SERVER['apiEnvironment']) && $_SERVER['apiEnvironment']==='dev') {
-      return 'dev';
-    } elseif(isset($_SERVER['apiEnvironment']) && $_SERVER['apiEnvironment']==='prod_godaddy') {
-      return 'atawa.net';
-    } elseif(isset($_SERVER['apiEnvironment']) && $_SERVER['apiEnvironment']==='admin') {
-      return 'admin';
-    } elseif(isset($_SERVER['apiEnvironment']) && $_SERVER['apiEnvironment']==='staging') {
-      return 'staging';
+    if(isset($_SERVER['appEnvironment']) && $_SERVER['appEnvironment'] !== '') {
+      return $_SERVER['appEnvironment'];
     } else {
       return 'local';
     }
-  }  
+  }
 
   public static function get_client_details() {
     $client_code = Utilities::get_current_client_id();

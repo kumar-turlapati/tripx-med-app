@@ -1,0 +1,4 @@
+vendor/*
+src/Atawa/Config/*
+public/static/*
+composer.lock

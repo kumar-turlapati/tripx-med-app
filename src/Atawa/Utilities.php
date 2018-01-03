@@ -491,15 +491,10 @@ class Utilities
     }
   }
 
-  public static function get_captcha_keys($host='',$needle='') {
-    $captcha_keys = [
-      'local' => ['6LeSFhMUAAAAAA3g4jVAu-fCgomUuua87yTvBFaL', '6LeSFhMUAAAAANqaMuoHz5WD4Zy3CoK9o376nQ2t'],
-      'atawa.net' => ['6Lc5FRMUAAAAANrEjKnwCpUinuckZj_d0APJfbk4', '6Lc5FRMUAAAAAOFwl7tBezF0f5eeMMvGT9rOr0Qe'],
-      'admin' => ['6Le5gxkUAAAAAAod5gx5FB7BsCNyigR7D_PqQ91L', '6Le5gxkUAAAAALi4_kI4sVMLHQng1-csMhSY01AP'],
-      'staging' => ['6LdTJSoUAAAAAF84kdfEdL_gKVKqWgab_jimEZ6a', '6LdTJSoUAAAAAHeJf9XCrOf35B3yftw7oM6zi8TD'],
-    ];
+  public static function get_captcha_keys($host='', $needle='') {
+    $captcha_keys = Config::get_captcha_keys();
     if(isset($captcha_keys[$host])) {
-      return $needle==='public'?$captcha_keys[$host][0]:$captcha_keys[$host][1];
+      return $needle === 'public'?$captcha_keys[$host][0]:$captcha_keys[$host][1];
     } else {
       return false;
     }

@@ -1,9 +1,3 @@
-<?php if(isset($_SERVER['appEnvironment']) && $_SERVER['appEnvironment'] === 'prod') : ?>
-  <script src="/assets/js/medqwik.min.js?<?php echo mt_rand() ?>"></script>
-<?php else : ?>
-  <script src="/assets/js/scripts.js?<?php echo mt_rand() ?>"></script>
-<?php endif; ?>
-
 <script src="/assets/js/jquery.js"></script> 
 <script src="/assets/js/jquery-ui-1.10.4.min.js"></script> 
 <script src="/assets/js/bootstrap.min.js"></script> 
@@ -31,3 +25,9 @@
 <script src="/assets/datetime/timepicker/js/bootstrap-timepicker.js"></script>
 
 <!--[if lt IE 9]><script src="/assets/js/jqplot1.0.9/excanvas.js"></script><![endif]-->
+
+<?php if(isset($_SERVER['appEnvironment']) && $_SERVER['appEnvironment'] === 'prod') : ?>
+  <script src="/assets/js/medqwik.min.js?<?php echo mt_rand() ?>"></script>
+<?php else : ?>
+  <script src="/assets/js/scripts.js?<?php echo mt_rand() ?>"></script>
+<?php endif; ?>

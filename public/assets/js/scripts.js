@@ -181,7 +181,7 @@ function initializeJS() {
           width: 300,
           cacheLength:0,
           selectFirst:false,
-          minChars:1,
+          minChars:2,
           'max': 0,
         });            
     }

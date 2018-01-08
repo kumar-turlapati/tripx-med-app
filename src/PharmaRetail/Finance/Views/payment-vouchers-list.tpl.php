@@ -30,7 +30,7 @@
     $query_params = '?'.implode('&', $query_params);
   }
 
-  $page_url = '/fin/payment-vouchers';
+  $page_url = $pagination_url = '/fin/payment-vouchers';
 ?>
 
 <!-- Basic form starts -->

@@ -29,8 +29,10 @@
 <link href="/assets/js/jauto/styles.css" rel="stylesheet" />
 <!-- graph library -->
 <link href="/assets/js/jqplot1.0.9/jquery.jqplot.min.css" rel="stylesheet" />
-<!-- google captcha -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php if(isset($is_login)) { ?>
+  <!-- google captcha -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php } ?>
 <!-- HTML5 shim and Respond.js IE8 support of HTML5 -->
 <!--[if lt IE 9]>
   <script src="js/html5shiv.js"></script>

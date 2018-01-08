@@ -51,7 +51,7 @@ class LoginController
       }
     }
 
-    return array('',array('site_key'=>$site_key,'error'=>$error));
+    return array('',array('site_key'=>$site_key,'error'=>$error, 'is_login'=>true));
   }
 
   public function logoutAction(Request $request) {

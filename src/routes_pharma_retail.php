@@ -129,6 +129,9 @@ $routes->add('grn_list', new Routing\Route('/grn/list', array(
 $routes->add('sales_entry', new Routing\Route('/sales/entry', array(
     '_controller' => 'PharmaRetail\\Sales\\Controller\\SalesController::salesEntryAction',
 )));
+$routes->add('sales_entry_landing_cost', new Routing\Route('/sales-entry-with/landing-cost', array(
+    '_controller' => 'PharmaRetail\\Sales\\Controller\\SalesControllerAddOn::salesEntryAction',
+)));
 $routes->add('sales_entry_gst', new Routing\Route('/sales-gst/entry', array(
     '_controller' => 'PharmaRetail\\Sales\\Controller\\SalesControllerGst::salesEntryGstAction',
 )));

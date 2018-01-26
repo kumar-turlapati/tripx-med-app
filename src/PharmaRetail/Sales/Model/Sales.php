@@ -25,8 +25,28 @@ class Sales
 			return array('status' => true,  'invoiceCode' => $response['response']['invoiceCode'], 'billNo' => $response['response']['billNo'] );
 		} elseif($status === 'failed') {
 			return array('status' => false, 'apierror' => $response['reason']);
-		}		
+		}
 	}
+
+	public function createSaleLc($params = array()) 
+	{
+		$valid_result = $this->_validateFormData($params);
+		if($valid_result['status'] === false) {
+			return $valid_result;
+		}
+
+		$params['clientID'] = Utilities::get_current_client_id();
+
+		// call api.
+		$api_caller = new ApiCaller();
+		$response = $api_caller->sendRequest('post','/sales-entry-lc',$params);
+		$status = $response['status'];
+		if ($status === 'success') {
+			return array('status' => true,  'invoiceCode' => $response['response']['invoiceCode'], 'billNo' => $response['response']['billNo'] );
+		} elseif($status === 'failed') {
+			return array('status' => false, 'apierror' => $response['reason']);
+		}
+	}	
 
 	public function updateSale($params = array(), $invoice_code='') 
 	{

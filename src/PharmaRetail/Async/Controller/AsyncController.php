@@ -27,6 +27,17 @@ class AsyncController
                 $batch_nos = array();
             }
             Utilities::print_json_response($batch_nos);
+        } elseif(count($request->request->all()) > 0 && $api_string==='getBatchNosWithLc') {
+            $params['itemName'] = Utilities::clean_string($request->get('itemname'));
+            $end_point = $this->_get_api_end_point($api_string);
+            $response = $api_caller->sendRequest('get',$end_point.'/'.$client_id,$params);
+            $api_status = $response['status'];
+            if($api_status=='success') {
+                $batch_nos = $response['response'];
+            } else {
+                $batch_nos = array();
+            }
+            Utilities::print_json_response($batch_nos);
         } elseif($api_string==='getPatientDetails') {
             $ref_no = $request->get('refNo');
             $by = $request->get('by');
@@ -94,6 +105,9 @@ class AsyncController
         switch($resource) {
           case 'getBatchNos':
             return 'inventory/batchnos';
+            break;
+          case 'getBatchNosWithLc':
+            return 'inventory/batchnos-lc';
             break;
           case 'getPatientDetails':
             return 'customers/ip-op-details';

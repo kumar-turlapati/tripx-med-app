@@ -4,6 +4,7 @@
   // dump($cal_months);
   // dump($cal_years);
   // dump($_SESSION);
+  $user_type = (int)$_SESSION['utype'];
 ?>
 <div>
  
@@ -25,10 +26,8 @@
 
   <!-- Tab panes -->
   <div class="tab-content">
-
   	<!--markup for Sales Tab-->
     <div role="tabpanel" class="tab-pane active" id="tSales">
-
     	<div class="row">
     		<div class="col-md-6" id="daySales">
     		  <div class="widgetSec">
@@ -69,86 +68,83 @@
             </div>
           </div>
     		</div>
-    		<div class="col-md-6">
-          <div class="widgetSec">
-            <div class="widgetHeader">Cumulative sales for the month of <?php echo $mon_year_string ?></div>
-            <div class="widgetContent">
-              <table class="table priceTable">
-                <tbody>
-                  <tr>
-                    <td>Cash Sale</td>
-                    <td align="right"><div id="cs-cashsale"></div></td>
-                  </tr>
-                  <tr>
-                    <td>Card Sale</td>
-                    <td align="right"><div id="cs-cardsale"></div></td>
-                  </tr>
-                  <tr>
-                    <td>Credit Sale</td>
-                    <td align="right"><div id="cs-creditsale"></div></td>
-                  </tr>
-                  <tr>
-                    <td><b>Totals</b></td>
-                    <td align="right"><b><span id="cs-totals"></span></b></td>
-                  </tr>
-                  <tr>
-                    <td ><b>Sales Return</b></td>
-                    <td align="right"><b><span id="cs-returns"></span></b></td>
-                  </tr>
-                  <tr>
-                    <td ><b>Net Sales</b></td>
-                    <td align="right"><b><span id="cs-netsale" style="text-decoration:underline;"></span></b></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-    		</div>
-    	</div><!--end of Row-1 -->
-
-      <div class="row">
-        <div class="col-md-12">
-          <div class="widgetSec">
-            <div class="widgetHeader">Daywise Sales Summary</div>
-            <div class="widgetContent">
-              <div class="subHeader">
-              <form class="form-inline" id="salesGraphFilter">
-                <select class="form-control" id="sgf-month">
-                  <?php 
-                    foreach($cal_months as $key=>$value):
-                      $selected = ((int)$key===(int)$cur_month?'selected':'');
-                  ?>
-                   <option value="<?php echo $key ?>" <?php echo $selected ?>>
-                      <?php echo $value ?>
-                   </option>
-                  <?php endforeach; ?>
-                </select>
-                <select class="form-control" id="sgf-year">
-                  <?php 
-                    foreach($cal_years as $key=>$value): 
-                      $selected = ((int)$key==(int)$cur_year?'selected':'');                
-                  ?>
-                   <option value="<?php echo $key ?>" <?php echo $selected ?>>
-                      <?php echo $value ?>
-                   </option>
-                  <?php endforeach; ?>
-                </select>
-                <input type="hidden" name="saleMonth" id="saleMonth" value="<?php echo $cur_month ?>" />
-                <input type="hidden" name="saleYear" id="saleYear" value="<?php echo $cur_year ?>" />                
-                <input class="btn btn-primary" type="button" value="Reload" id="sfGraphReload" name="sfGraphReload" />
-               </form>
+        <?php if($user_type === 3): ?>
+      		<div class="col-md-6" id="monthwiseSales">
+            <div class="widgetSec">
+              <div class="widgetHeader">Cumulative sales for the month of <?php echo $mon_year_string ?></div>
+              <div class="widgetContent">
+                <table class="table priceTable">
+                  <tbody>
+                    <tr>
+                      <td>Cash Sale</td>
+                      <td align="right"><div id="cs-cashsale"></div></td>
+                    </tr>
+                    <tr>
+                      <td>Card Sale</td>
+                      <td align="right"><div id="cs-cardsale"></div></td>
+                    </tr>
+                    <tr>
+                      <td>Credit Sale</td>
+                      <td align="right"><div id="cs-creditsale"></div></td>
+                    </tr>
+                    <tr>
+                      <td><b>Totals</b></td>
+                      <td align="right"><b><span id="cs-totals"></span></b></td>
+                    </tr>
+                    <tr>
+                      <td ><b>Sales Return</b></td>
+                      <td align="right"><b><span id="cs-returns"></span></b></td>
+                    </tr>
+                    <tr>
+                      <td ><b>Net Sales</b></td>
+                      <td align="right"><b><span id="cs-netsale" style="text-decoration:underline;"></span></b></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-               <div id="salesGraph"></div>              
+            </div>
+      		</div>
+        <?php endif; ?>
+    	</div><!--end of Row-1 -->
+      <?php if($user_type === 3): ?>      
+        <div class="row" id="salesDayGraph">
+          <div class="col-md-12">
+            <div class="widgetSec">
+              <div class="widgetHeader">Daywise Sales Summary</div>
+              <div class="widgetContent">
+                <div class="subHeader">
+                <form class="form-inline" id="salesGraphFilter">
+                  <select class="form-control" id="sgf-month">
+                    <?php 
+                      foreach($cal_months as $key=>$value):
+                        $selected = ((int)$key===(int)$cur_month?'selected':'');
+                    ?>
+                     <option value="<?php echo $key ?>" <?php echo $selected ?>>
+                        <?php echo $value ?>
+                     </option>
+                    <?php endforeach; ?>
+                  </select>
+                  <select class="form-control" id="sgf-year">
+                    <?php 
+                      foreach($cal_years as $key=>$value): 
+                        $selected = ((int)$key==(int)$cur_year?'selected':'');                
+                    ?>
+                     <option value="<?php echo $key ?>" <?php echo $selected ?>>
+                        <?php echo $value ?>
+                     </option>
+                    <?php endforeach; ?>
+                  </select>
+                  <input type="hidden" name="saleMonth" id="saleMonth" value="<?php echo $cur_month ?>" />
+                  <input type="hidden" name="saleYear" id="saleYear" value="<?php echo $cur_year ?>" />                
+                  <input class="btn btn-primary" type="button" value="Reload" id="sfGraphReload" name="sfGraphReload" />
+                 </form>
+                </div>
+                 <div id="salesGraph"></div>              
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-
-
-
-
-
+      <?php endif; ?>
     </div><!--end of Tab -->
     
 

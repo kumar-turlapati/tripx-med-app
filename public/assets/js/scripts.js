@@ -177,13 +177,23 @@ function initializeJS() {
     });    
 
     if(jQuery('.inameAc').length>0) {
-        $('.inameAc').autocomplete("/async/itemsAc", {
-          width: 300,
-          cacheLength:0,
-          selectFirst:false,
-          minChars:2,
-          'max': 0,
-        });            
+      $('.inameAc').autocomplete("/async/itemsAc", {
+        width: 300,
+        cacheLength:0,
+        selectFirst:false,
+        minChars:2,
+        'max': 0,
+      });
+    }
+
+    if(jQuery('.inameLc').length>0) {
+      $('.inameLc').autocomplete("/async/itemsAc", {
+        width: 300,
+        cacheLength:0,
+        selectFirst:false,
+        minChars:2,
+        'max': 0,
+      });
     }
 
     jQuery('.puRcvdQty').on("blur",function(e){
@@ -308,6 +318,43 @@ function initializeJS() {
               data: data,
               method:"POST",
               success: function(batchNos) {
+                var objLength = Object.keys(batchNos).length;
+                var bnoElement = jQuery('#batchno_'+itemIndex);
+                var uppElement = jQuery('#upp_'+itemIndex);
+                if(objLength>0) {
+                    var upp = batchNos.unitsPerPack;
+                    jQuery(uppElement).text(upp);
+                    jQuery(bnoElement).empty();
+                    jQuery(bnoElement).append(bnoFirstOption);
+                    jQuery.each(batchNos.batch_nos, function (index, bnoDetails) {
+                        saleBatchNos[index] = bnoDetails;
+                        jQuery(bnoElement).append(jQuery("<option></option>")
+                        .attr("value",index)
+                        .text(index));                   
+                    });
+                } else {
+                    jQuery(uppElement).text('');
+                }
+              },
+              error: function(e) {
+                alert('An error occurred while fetching Batch Nos.');
+              }
+           });          
+        }
+    });
+
+    jQuery('.landingCost').on("blur", function(e){
+        var itemName = jQuery(this).val();
+        var itemIndex = jQuery(this).attr('index');
+        var batchNoRef = $('#batchno_'+itemIndex);
+        var avaBatches = $(batchNoRef).children('option').length;
+        if(itemName !== '' && parseInt(avaBatches) === 1) {
+           var data = {itemname:itemName};
+           jQuery.ajax("/async/getBatchNosWithLc", {
+              data: data,
+              method:"POST",
+              success: function(batchNos) {
+                console.log(batchNos);
                 var objLength = Object.keys(batchNos).length;
                 var bnoElement = jQuery('#batchno_'+itemIndex);
                 var uppElement = jQuery('#upp_'+itemIndex);
@@ -1088,13 +1135,6 @@ function updateInwardTaxAmounts() {
   });
 }
 
-jQuery(document).ready(function(){
-  initializeJS();
-  if($('#dbContainer').length>0) {  
-    monthWiseSales();
-  }
-});
-
 function printSalesBill(bill_no) {
   var printUrl = '/print-sales-bill?billNo='+bill_no;
   window.open(printUrl, "_blank", "scrollbars=yes,titlebar=yes,resizable=yes,width=400,height=400");
@@ -1197,10 +1237,17 @@ function monthWiseSales() {
           location: 'n', 
           placement: 'outside',          
         }*/
-      });      
+      });  
     },
     error: function(e) {
       alert('An error occurred while loading Monthwise Sales');
     }
   });
 }
+
+jQuery(document).ready(function(){
+  initializeJS();
+  if( $('#dbContainer').length>0 && ($('#monthwiseSales').length>0 || $('#salesDayGraph').length>0)) {
+    monthWiseSales();
+  }
+});

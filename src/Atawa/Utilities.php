@@ -614,4 +614,10 @@ class Utilities
       } while ($rnd >= $range);
       return $min + $rnd;
   }  
+
+  public static function get_logout_url() {
+    $bc = Utilities::get_business_category();
+    $environment = $_SERVER['appEnvironment'];
+    return Config::get_logout_urls($bc, $environment);
+  }
 }

@@ -37,7 +37,13 @@
     $sel_cat = $submitted_data['catCode'];
   } else {
     $sel_cat = '';
-  }  
+  }
+
+  if(isset($submitted_data['isPrescriptionMand'])) {
+    $presc_option = $submitted_data['isPrescriptionMand'];
+  } else {
+    $presc_option = 0;
+  }
 ?>
 
 <!-- Basic form starts -->
@@ -46,7 +52,7 @@
     
     <!-- Panel starts -->
     <section class="panel">
-      <h2 class="hdg-reports text-center">Create/Update Medicines</h2>
+      <h2 class="hdg-reports text-center">Create or Update a Medicine</h2>
       <div class="panel-body">
         <?php echo $flash_obj->print_flash_message(); ?>
 
@@ -127,9 +133,7 @@
               </div>
             </div>
           </div>
-
           <div class="form-group">
-
             <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
               <label class="control-label">Composition name</label>
               <div class="select-wrap">
@@ -150,7 +154,6 @@
                 <?php endif; ?>
               </div>
             </div>
-
             <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
               <label class="control-label">Units per pack</label>
               <div class="select-wrap">
@@ -166,10 +169,10 @@
                     <option value="<?php echo $key ?>" <?php echo $selected ?>><?php echo $value ?></option>
                   <?php endforeach; ?>
                 </select>
-                <?php if(isset($errors['unitsPerPack'])): ?>
-                  <span class="error"><?php echo $errors['unitsPerPack'] ?></span>
-                <?php endif; ?>
               </div>
+              <?php if(isset($errors['unitsPerPack'])): ?>
+                <span class="error"><?php echo $errors['unitsPerPack'] ?></span>
+              <?php endif; ?>
             </div>
             <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
               <label class="control-label">Status</label>
@@ -186,11 +189,47 @@
                     <option value="<?php echo $key ?>" <?php echo $selected ?>><?php echo $value ?></option>
                   <?php endforeach; ?>
                 </select>
-                <?php if(isset($errors['status'])): ?>
-                  <span class="error"><?php echo $errors['status'] ?></span>
+              </div>
+              <?php if(isset($errors['status'])): ?>
+                <span class="error"><?php echo $errors['status'] ?></span>
+              <?php endif; ?>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+              <label class="control-label">HSN / SAC code</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                name="hsnSacCode" 
+                id="hsnSacCode" 
+                value="<?php echo (isset($submitted_data['hsnSacCode'])?$submitted_data['hsnSacCode']:'') ?>"
+                maxlength=8
+              >
+              <?php if(isset($errors['hsnSacCode'])): ?>
+                <span class="error"><?php echo $errors['hsnSacCode'] ?></span>
+              <?php endif; ?>
+            </div>
+            <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+              <label class="control-label">Is Prescription mandatory?</label>
+              <div class="select-wrap">
+                <select class="form-control" name="isPrescriptionMand" id="isPrescriptionMand">
+                  <?php 
+                    foreach($presc_options_a as $key=>$value):
+                      if($presc_option === $key) {
+                        $selected = 'selected="selected"';
+                      } else {
+                        $selected = '';
+                      }                       
+                  ?>
+                    <option value="<?php echo $key ?>" <?php echo $selected ?>><?php echo $value ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <?php if(isset($errors['isPrescriptionMand'])): ?>
+                  <span class="error"><?php echo $errors['isPrescriptionMand'] ?></span>
                 <?php endif; ?>
               </div>
-            </div>
+            </div>            
           </div>
           <div class="text-center">
             <button class="btn btn-success" id="Save">

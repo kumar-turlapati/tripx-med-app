@@ -11,7 +11,7 @@
 <title><?php echo $page_title_browser ?></title>
 
 <!-- favicon -->
-<link rel="icon" href="../assets/img/fav-icon.png" type="image/gif">
+<link rel="icon" href="/assets/img/fav-icon.png" type="image/gif">
 
 <!-- bootstrap theme -->
 <link href="/assets/css/bootstrap-theme.css" rel="stylesheet">

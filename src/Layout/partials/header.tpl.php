@@ -2,8 +2,10 @@
 <?php 
   if(isset($_SESSION['uname']) && $_SESSION['uname'] !== '') {
     $uname = substr($_SESSION['uname'],0,10);
+    $logo_url = '/';
   } else {
     $uname = 'My Profile';
+    $logo_url = 'https://www.medqwik.com/'
   }
 ?>
 <nav class="navbar navbar-default">
@@ -13,7 +15,7 @@
       <div class="navbar-header">
         <span type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#user-status" aria-expanded="false"><i class="fa fa-bars"></i></span>
         <!--logo start--> 
-        <a href="/" class="logo">
+        <a href="<?php echo $logo_url ?>" class="logo">
           <img src="/assets/img/logo.png" alt="MedQwik" /> 
         </a>
         <!--logo end-->

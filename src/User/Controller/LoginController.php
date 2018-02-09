@@ -57,9 +57,10 @@ class LoginController
   public function logoutAction(Request $request) {
     $expires_in = time()-86400;
     $flash = new Flash;
+    $logout_url = Utilities::get_logout_url();
     if (setcookie('__ata__','',$expires_in)) {
       unset($_SESSION);
-      Utilities::redirect('/login');
+      Utilities::redirect($logout_url);
     } else {
       $flash->set_flash_message('Unable to Logout. Please contact administrator',1);
       Utilities::redirect('/dashboard');        

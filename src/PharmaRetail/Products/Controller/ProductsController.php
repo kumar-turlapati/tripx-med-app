@@ -108,6 +108,7 @@ class ProductsController
             'comps' => array(),
             'upp_a' => $upp_a,
             'show_be' => $show_be,
+            'presc_options_a' => [0 => 'No', 1 => 'Yes'],
         );
 
         // build variables

@@ -101,7 +101,11 @@ class Products
 		}
 
 		if($params['unitsPerPack'] == '') {
-				$errors['unitsPerPack'] = $this->_errorDescriptions('unitsPerPack');
+			$errors['unitsPerPack'] = $this->_errorDescriptions('unitsPerPack');
+		}
+
+		if($params['hsnSacCode'] !== '' && (!is_numeric($params['hsnSacCode']) || strlen($params['hsnSacCode']) > 8) ) {
+			$errors['hsnSacCode'] = 'Invalid HSN / SAC code.';
 		}
 
 		if(count($errors)>0) {

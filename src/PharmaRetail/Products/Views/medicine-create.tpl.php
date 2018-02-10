@@ -39,8 +39,8 @@
     $sel_cat = '';
   }
 
-  if(isset($submitted_data['isPrescriptionMand'])) {
-    $presc_option = $submitted_data['isPrescriptionMand'];
+  if(isset($submitted_data['isPrescMand'])) {
+    $presc_option = $submitted_data['isPrescMand'];
   } else {
     $presc_option = 0;
   }
@@ -216,7 +216,7 @@
                 <select class="form-control" name="isPrescriptionMand" id="isPrescriptionMand">
                   <?php 
                     foreach($presc_options_a as $key=>$value):
-                      if($presc_option === $key) {
+                      if((int)$presc_option === (int)$key) {
                         $selected = 'selected="selected"';
                       } else {
                         $selected = '';

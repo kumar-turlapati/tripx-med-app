@@ -81,7 +81,7 @@ class ProductsController
             } elseif($update_flag===false) {
                 $page_success   = 'Product information added successfully with code ['.$new_product['itemCode'].']';
                 $flash->set_flash_message($page_success);
-                Utilities::redirect($list_url);
+                Utilities::redirect($create_url);
             } else {
                 $page_success   = 'Product information updated successfully';
                 $flash->set_flash_message($page_success);

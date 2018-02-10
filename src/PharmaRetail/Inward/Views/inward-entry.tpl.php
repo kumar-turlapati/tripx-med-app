@@ -194,6 +194,7 @@
                     </div>
                 </div>
               </div>
+              <?php /*
               <div class="form-group">
                 <div class="col-sm-12 col-md-4 col-lg-4">
                   <label class="control-label">Bill discount (in %)</label>
@@ -210,7 +211,14 @@
                   <?php endif; ?>         
                   <p class="blue" align="justify">To avoid calculation of manual discount per each item add percentage here. This will be applied against all items in this bill.</p>
                 </div>
-              </div>              
+              </div>*/ ?>
+              <input 
+                type="hidden"
+                name="billDiscount"
+                id="billDiscount"
+                value="0"
+                maxlength="5"
+              >                
             </div>
           </div>
           <h2 class="hdg-reports">Item Details</h2>

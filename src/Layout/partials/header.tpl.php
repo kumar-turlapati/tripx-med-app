@@ -5,7 +5,7 @@
     $logo_url = '/';
   } else {
     $uname = 'My Profile';
-    $logo_url = 'https://www.medqwik.com/'
+    $logo_url = 'https://www.medqwik.com/';
   }
 ?>
 <nav class="navbar navbar-default">

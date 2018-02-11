@@ -52,11 +52,9 @@ class PDF extends FPDF {
     $this->Cell(100,14,$client_details['addr1'],'',2,'L');
     $this->Cell(100,-8,$client_details['addr2'],'',2,'L');
     $this->Cell(100,15,'Phone(s):'.$client_details['phones'],'',2,'L');
-    if(isset($client_details['businessCategory']) && $client_details['businessCategory'] === 1) {
-      $this->Cell(100,-8,'DL No.:'.$client_details['dlNo'],'',1,'L');
-    }
+    $this->Cell(100,-8,'DL No.:'.$client_details['dlNo'],'',2,'L');
     if(isset($client_details['gstNo']) && $client_details['gstNo'] !== '') {
-      $this->Cell(100,-8,'GSTIN:'.$client_details['gstNo'],'',1,'L');      
+      $this->Cell(100,8,'GSTIN:'.$client_details['gstNo'],'',0,'R');
     }
     $this->Ln(6);
     $this->Cell(0,0,'','B',1);

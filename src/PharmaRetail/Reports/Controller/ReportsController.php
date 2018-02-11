@@ -215,11 +215,14 @@ class ReportsController
         $pdf->Ln();    
     }
 
+    /*
     if($tax_amount>0) {
         $net_pay_string = '***************** VAT AMOUNT: Rs.'.number_format($tax_amount,2).'  ***************** Net Pay';
     } else {
         $net_pay_string = "Net Pay";
-    }
+    }*/
+
+    $net_pay_string = "Net Pay";
     
     $pdf->Cell($totals_width,6,'(+/-) Round Off','LRTB',0,'R');
     $pdf->Cell($item_widths[5],6,$total_amt_r,'RTB',0,'R');

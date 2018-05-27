@@ -265,6 +265,8 @@ class ReportsInventoryController
   public function stockReportNew(Request $request) {
 
         $date = $request->get('date');
+        $rate_calc = !is_null($request->get('rc')) ? 'purchase': 'mrp';
+
         $optionType = $request->get('optionType');
         if(!Utilities::validateDate($date)) {
             die("<h1>Invalid date</h1>");            
@@ -366,6 +368,7 @@ class ReportsInventoryController
             $batch_no = $item_details['batchNo'];
             $closing_qty = isset($item_details['closing_qty'])?$item_details['closing_qty']:0;
             $purchase_rate = $item_details['purchase_rate'];
+            $mrp = $item_details['mrp'];
             if( isset($item_details['expiry_date']) ) {
               $expiry_date = date("m/y", strtotime($item_details['expiry_date']));
             } else {
@@ -373,7 +376,14 @@ class ReportsInventoryController
             }
 
             $tax_percent = isset($item_details['vat_percent'])?$item_details['vat_percent']:0;
-            $amount = round($closing_qty*$purchase_rate,2);
+
+            if($mrp>0 && $rate_calc === 'mrp') {
+                $item_rate = $mrp;
+            } else {
+                $item_rate = $purchase_rate;
+            }
+
+            $amount = round($closing_qty*$item_rate,2);
             $tot_amount += $amount;
             
             $pdf->Ln();

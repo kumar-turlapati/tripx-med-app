@@ -263,7 +263,7 @@ class ReportsInventoryController
   public function stockReportNew(Request $request) {
 
         $date = $request->get('date');
-        $rate_calc = !is_null($request->get('rc')) ? 'purchase': 'mrp';
+        $rate_calc = !is_null($request->get('rc')) ? 'mrp': 'purchase';
 
         $optionType = $request->get('optionType');
         if(!Utilities::validateDate($date)) {

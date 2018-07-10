@@ -181,34 +181,36 @@
                 ?>
                     <tr>
                       <td><?php echo $item_name ?></td>
-                      <td class="text-right"><?php echo (int)$rec_qty.' ('.(int)$free_qty.')'  ?></td>
-                      <td class="text-right"><?php echo (int)$acc_qty ?></td>
+                      <td class="text-right"><?php echo (float)$rec_qty.' ('.(float)$free_qty.')'  ?></td>
+                      <td class="text-right"><?php echo (float)$acc_qty ?></td>
                       <td class="text-right"><?php echo $batch_no ?></td>
                       <td class="text-right"><?php echo $exp_date ?></td>
                       <td class="text-right"><?php echo number_format($mrp,2) ?></td>
                       <td class="text-right"><?php echo number_format($item_rate,2) ?></td>
                       <td class="text-right"><?php echo number_format($gross_amount,2) ?></td>
                       <td class="text-right"><?php echo number_format($discount,2) ?></td>
-                      <td class="text-right"><?php echo number_format($gross_amount,2) ?></td>                      
-                      <td class="text-right"><?php echo number_format($taxable_amount,2) ?></td>
+                      <td class="text-right"><?php echo number_format($taxable_amount,2) ?></td>                      
+                      <td class="text-right"><?php echo number_format($tax_percent,2) ?></td>
                     </tr>
                 <?php endfor; ?>
+                  <?php /*
                   <tr>
-                    <td colspan="10" style="vertical-align:middle;text-align:right;font-size:14px;font-weight:bold;">Items total</td>
+                    <td colspan="10" style="vertical-align:middle;text-align:right;font-size:14px;font-weight:bold;">Taxable Value</td>
                     <td id="inwItemsTotal" style="vertical-align:middle;text-align:right;font-size:14px;font-weight:bold;"><?php echo number_format($bill_amount, 2) ?></td>
                   </tr>
                   <tr>
                     <td style="vertical-align:middle;" colspan="10" align="right">(-) Discount</td>
                     <td style="vertical-align:middle;text-align:right;"><?php echo number_format($discount_amount,2) ?></td>
-                  </tr>
+                  </tr> */ ?>
                   <tr>
-                    <td style="vertical-align:middle;font-weight:bold;" colspan="10" align="right">Gross amount</td>
+                    <td style="vertical-align:middle;font-weight:bold;" colspan="10" align="right">Taxable Value</td>
                     <td style="vertical-align:middle;text-align:right;"><?php echo number_format($bill_amount_after_disc, 2) ?></td>
                   </tr>
                   <tr>
                     <td style="vertical-align:middle;" colspan="10" align="right">G.S.T</td>
                     <td style="vertical-align:middle;text-align:right;"><?php echo number_format($tax_amount, 2) ?></td>
                   </tr>
+                  <?php /*
                   <tr>
                     <td style="vertical-align:middle;" colspan="10" align="right">Other taxes</td>
                     <td style="vertical-align:middle;text-align:right;"><?php echo number_format($other_taxes, 2) ?></td>
@@ -224,7 +226,7 @@
                   <tr>
                     <td style="vertical-align:middle;font-weight:bold;" colspan="10" align="right">Bill value</td>
                     <td style="vertical-align:middle;text-align:right;"><?php echo number_format($bill_value, 2) ?></td>
-                  </tr>
+                  </tr> */?>
                   <tr>
                     <td style="vertical-align:middle;font-weight:bold;" colspan="10" align="right">Round off</td>
                     <td style="vertical-align:middle;text-align:right;"><?php echo number_format($round_off, 2) ?></td>

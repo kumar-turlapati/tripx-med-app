@@ -35,8 +35,6 @@ class InwardController
     $form_errors = $form_data = [];
     $api_error = '';
     
-    $business_category = Utilities::get_business_category();
-
     $total_item_rows = 25;
 
     for($i=1;$i<=365;$i++) {
@@ -56,10 +54,13 @@ class InwardController
       }
     }
 
+    $client_details = Utilities::get_client_details();
+    $client_business_state = $client_details['locState'];
+
     # check if form is submitted.
     if(count($request->request->all()) > 0) {
       $submitted_data = $request->request->all();
-      $validation_status = $this->_validate_form_data($submitted_data,false,$business_category);
+      $validation_status = $this->_validate_form_data($submitted_data,false);
       if($validation_status['status']===true) {
         $cleaned_params = $validation_status['cleaned_params'];
         # hit api
@@ -94,7 +95,9 @@ class InwardController
       'form_data' => $form_data,
       'total_item_rows' => $total_item_rows,
       'api_error' => $api_error,
-      'business_category' => $business_category,    
+      'states_a' => array(0=>'Choose') + Constants::$LOCATION_STATES,
+      'supply_type_a' => array('' => 'Choose', 'inter' => 'Interstate', 'intra' => 'Intrastate'),
+      'client_business_state' => $client_business_state,
     );
 
     return array($this->template->render_view('inward-entry',$template_vars),$controller_vars);
@@ -107,15 +110,16 @@ class InwardController
     $credit_days_a = $suppliers_a = $payment_methods = [];
     $taxes_a = $taxes = $taxes_raw = [];
     $form_errors = $form_data = [];
-    $page_error = '';
-
-    $business_category = Utilities::get_business_category();
+    $api_error = '';
 
     $total_item_rows = 25;
 
     for($i=1;$i<=365;$i++) {
       $credit_days_a[$i] = $i;
     }    
+
+    $client_details = Utilities::get_client_details();
+    $client_business_state = $client_details['locState'];    
 
     # validate purchase code.
     if( is_null($request->get('purchaseCode')) ) {
@@ -145,7 +149,7 @@ class InwardController
           $exp_dates[] = $value.'/'.$ex_years[$key];
         }
 
-        # unser item details from api data.
+        # unset item details from api data.
         unset($purchase_details['itemDetails']);
 
         # create form data variable.
@@ -192,6 +196,9 @@ class InwardController
       }
     }
 
+    $client_details = Utilities::get_client_details();
+    $client_business_state = $client_details['locState'];    
+
     # check if form is submitted.
     if(count($request->request->all()) > 0) {
       $submitted_data = $request->request->all();
@@ -229,9 +236,11 @@ class InwardController
       'form_errors' => $form_errors,
       'form_data' => $form_data,
       'total_item_rows' => $total_item_rows,
-      'page_error' => $page_error,
+      'api_error' => $api_error,
       'is_grn_generated' => $is_grn_generated,
-      'business_category' => $business_category,
+      'states_a' => array(0=>'Choose') + Constants::$LOCATION_STATES,
+      'supply_type_a' => array('' => 'Choose', 'inter' => 'Interstate', 'intra' => 'Intrastate'),
+      'client_business_state' => $client_business_state,      
     );
 
     return array($this->template->render_view('inward-entry-update',$template_vars),$controller_vars);
@@ -250,7 +259,10 @@ class InwardController
 
     for($i=1;$i<=365;$i++) {
       $credit_days_a[$i] = $i;
-    }    
+    }
+
+    $client_details = Utilities::get_client_details();
+    $client_business_state = $client_details['locState'];    
 
     # validate purchase code.
     if( is_null($request->get('purchaseCode')) ) {
@@ -272,6 +284,7 @@ class InwardController
         $ex_years = array_column($purchase_details['itemDetails'],'expdateYear');
         $mrps = array_column($purchase_details['itemDetails'],'mrp');
         $item_rates = array_column($purchase_details['itemDetails'],'itemRate');
+        $discounts = array_column($purchase_details['itemDetails'],'discount');                
         $tax_percents = array_column($purchase_details['itemDetails'],'vatPercent');
         foreach($ex_months as $key=>$value) {
           if($value<10) {
@@ -300,6 +313,7 @@ class InwardController
         $form_data['itemRate'] = $item_rates;
         $form_data['taxPercent'] = $tax_percents;
         $form_data['mrp'] = $mrps;
+        $form_data['itemDiscount'] = $discounts;        
         if($form_data['grnFlag'] === 'yes') {
           $is_grn_generated = true;
         } else {
@@ -341,13 +355,16 @@ class InwardController
       'total_item_rows' => $total_item_rows,
       'page_error' => $page_error,
       'is_grn_generated' => $is_grn_generated,
+      'states_a' => array(0=>'Choose') + Constants::$LOCATION_STATES,
+      'supply_type_a' => array('' => 'Choose', 'inter' => 'Interstate', 'intra' => 'Intrastate'),
+      'client_business_state' => $client_business_state,
     );
 
     return array($this->template->render_view('inward-entry-view',$template_vars),$controller_vars);
   }  
 
   /**************************************** Private functions ***********************************/
-  private function _validate_form_data($form_data=[], $is_grn_generated=false, $business_category=true) {
+  private function _validate_form_data($form_data=[], $is_grn_generated=false) {
 
     $form_errors = $cleaned_params = [];
     $is_one_item_found = false;
@@ -426,6 +443,7 @@ class InwardController
       $item_rates_a = $form_data['itemRate'];
       $tax_percents_a = $form_data['taxPercent'];
       $item_discounts = $form_data['itemDiscount'];
+      $item_hsnsac_codes_a = $form_data['hsnSacCode'];      
 
       foreach($item_names_a as $key=>$item_name) {
         if($item_name !== '') {
@@ -441,6 +459,7 @@ class InwardController
           $item_rate = Utilities::clean_string($item_rates_a[$key]);
           $tax_percent = Utilities::clean_string($tax_percents_a[$key]);
           $discount_amount = Utilities::clean_string($item_discounts[$key]);
+          $hsn_sac_code = Utilities::clean_string($item_hsnsac_codes_a[$key]);
 
           $cleaned_params['itemDetails']['itemName'][] = $item_name;
 
@@ -483,14 +502,14 @@ class InwardController
           # for non pharmacy businesses batchno already contains _.
           # we need to remove that to pass validation.
           # 0537pm @ 02082017.
-          if($business_category>1) {
-            $batch_no_a = explode('_', $batch_no);
-            if(is_array($batch_no_a) && count($batch_no_a)>0) {
-              $batch_no = $batch_no_a[1];
-            } else {
-              $batch_no = 'Invalid99';
-            }
-          }
+          // if($business_category>1) {
+          //   $batch_no_a = explode('_', $batch_no);
+          //   if(is_array($batch_no_a) && count($batch_no_a)>0) {
+          //     $batch_no = $batch_no_a[1];
+          //   } else {
+          //     $batch_no = 'Invalid99';
+          //   }
+          // }
           if( !ctype_alnum($batch_no) ) {
             $form_errors['itemDetails'][$key]['batchNo'] = 'Invalid batch no.';
           } else {
@@ -516,6 +535,12 @@ class InwardController
             $form_errors['itemDetails'][$key]['itemDiscount'] = 'Invalid discount amount';
           } else {
             $cleaned_params['itemDetails']['itemDiscount'][] = $discount_amount;
+          }
+          # validate hsn / sac code.
+          if( $hsn_sac_code !=='' && !is_numeric(str_replace(' ', '', $hsn_sac_code)) ) {
+            $form_errors['itemDetails'][$key]['hsnSacCode'] = 'Invalid HSN or SAC code';
+          } else {
+            $cleaned_params['itemDetails']['hsnSacCode'][] = $hsn_sac_code;
           }
         }
       }

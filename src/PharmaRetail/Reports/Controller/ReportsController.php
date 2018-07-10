@@ -98,7 +98,7 @@ class ReportsController
     $pay_method     =    Constants::$PAYMENT_METHODS[$sale_details['paymentMethod']];
     $doctor_name    =    ($sale_details['doctorName']!=''?$sale_details['doctorName']:'-');
     $sale_type_txt  =    Constants::$SALE_TYPES_NUM[(int)$sale_type];
-    $terms_text     =    'Note: [1] Please get your medicines checked by Doctor before use. [2] Production of Original bill is mandatory for return of items. [3] Item returns/replacement will not be entertained after 48 hours. [4] Total amount is inclusive of applicable taxes.';
+    $terms_text     =    'Note: [1] Please get your medicines checked by Doctor before use. [2] Production of original bill is mandatory for return of items. [3] Item returns/replacement will not be possible after 48 hours. [4] Total amount is inclusive of all applicable taxes.';
     $bill_amount    =    $sale_details['billAmount'];
     $bill_discount  =    $sale_details['discountAmount'];
     $total_amount   =    $sale_details['totalAmount'];
@@ -110,6 +110,7 @@ class ReportsController
     $gender         =    ($sale_details['patientGender']!==null?$sale_details['patientGender']:'');
     $ipop_ref_no    =    $sale_details['patientRefNumber'];
     $tax_amount     =    $sale_details['taxAmount'];
+    $sale_mode      =    Constants::$SALE_MODES[(int)$sale_details['saleMode']];
 
     if((int)$sale_type===2) {
         $ip_ref_label = 'I.P.No.';
@@ -126,7 +127,7 @@ class ReportsController
 
     # Print Bill Information.
     $pdf->SetFont('Arial','B',16);
-    $pdf->Cell(0,0,'Sales Bill','',1,'C');
+    $pdf->Cell(0,0,'Bill of Sale '.'[ '.$sale_mode.' ]','',1,'C');
     
     $pdf->SetFont('Arial','B',9);
     $pdf->Ln(4);
@@ -143,7 +144,7 @@ class ReportsController
     $pdf->Cell($header_widths[2],6,$ip_ref_label,'RTB',0,'C');
     $pdf->Cell($header_widths[3],6,'Referred By','RTB',1,'C');
     $pdf->SetFont('Arial','',8);
-    $pdf->Cell($header_widths[0],6,strtoupper(strtolower($patient_name)),'LRTB',0,'C');
+    $pdf->Cell($header_widths[0],6,substr(strtoupper(strtolower($patient_name)),0,35),'LRTB',0,'C');
 
     if($patient_age>0) {
         $pdf->Cell($header_widths[1],6,$patient_age.' '.$age_category,'LRTB',0,'C');

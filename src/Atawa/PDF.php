@@ -24,7 +24,6 @@ class PDF extends FPDF {
   }
 
   public function Header() {
-
     if(isset($_SESSION['ln']) && $_SESSION['ln'] !== '') {
       $environment = Utilities::get_host_environment_key();
       $asset_urls = Config::get_assets_url();

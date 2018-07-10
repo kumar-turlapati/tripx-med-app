@@ -1,4 +1,4 @@
- <?php
+<?php
 
 use Symfony\Component\Routing;
 use Symfony\Component\HttpFoundation\Response;
@@ -121,8 +121,10 @@ $routes->add('grn_view', new Routing\Route('/grn/view/{grnCode}', array(
     '_controller' => 'PharmaRetail\\Grn\\Controller\\GrnController::grnViewAction',
     'grnCode' => null,
 )));
-$routes->add('grn_list', new Routing\Route('/grn/list', array(
+$routes->add('grn_list', new Routing\Route('/grn/list/{pageNo}/{perPage}', array(
     '_controller' => 'PharmaRetail\\Grn\\Controller\\GrnController::grnListAction',
+    'pageNo' => 1,
+    'perPage' => 100,    
 )));
 
 // sales routes
@@ -149,6 +151,10 @@ $routes->add('sales_remove', new Routing\Route('/sales/remove/{salesCode}', arra
 )));
 $routes->add('sales_list', new Routing\Route('/sales/list/{pageNo}', array(
     '_controller' => 'PharmaRetail\\Sales\\Controller\\SalesController::salesListAction',
+    'pageNo' => null,
+)));
+$routes->add('sales_list_customer', new Routing\Route('/sales/list-by-patient/{pageNo}', array(
+    '_controller' => 'PharmaRetail\\Sales\\Controller\\SalesController::salesListByPatientAction',
     'pageNo' => null,
 )));
 $routes->add('sales_bill_search', new Routing\Route('/sales/search-bills', array(
@@ -366,6 +372,18 @@ $routes->add('update_tax', new Routing\Route('/taxes/update/{taxCode}', array(
 )));
 $routes->add('list_taxes', new Routing\Route('/taxes/list', array(
   '_controller' => 'PharmaRetail\\Taxes\\Controller\\TaxesController::listTaxes',
+)));
+
+// discounts management
+$routes->add('add_discount', new Routing\Route('/discount-percent/add', array(
+  '_controller' => 'PharmaRetail\\Discount\\Controller\\DiscountController::addDiscount',
+)));
+$routes->add('update_discount', new Routing\Route('/discount-percent/update/{discountCode}', array(
+  '_controller' => 'PharmaRetail\\Discount\\Controller\\DiscountController::updateDiscount',
+  'discountCode' => null,
+)));
+$routes->add('list_discounts', new Routing\Route('/discount-percent/list', array(
+  '_controller' => 'PharmaRetail\\Discount\\Controller\\DiscountController::listDiscounts',
 )));
 
 // error page

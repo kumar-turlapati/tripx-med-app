@@ -14,7 +14,7 @@ class AsyncController
         $api_caller = new ApiCaller();
         $api_string = Utilities::clean_string($request->get('apiString'));
         $client_id = Utilities::get_current_client_id();
-        $params = array();  
+        $params = array();
 
         if(count($request->request->all()) > 0 && $api_string==='getBatchNos') {
             $params['itemName'] = Utilities::clean_string($request->get('itemname'));
@@ -97,6 +97,28 @@ class AsyncController
             } else {
               echo $response;
             }
+        } elseif($api_string==='check-inward-item') {
+            $params['iN'] = Utilities::clean_string($request->get('iN'));
+            $api_url = 'inward-entry/item-history';
+            $response = $api_caller->sendRequest('get',$api_url,$params,false);
+            header("Content-type: application/json");            
+            if(is_array($response)) {
+              echo json_encode($response);
+            } else {
+              echo $response;
+            }
+        } elseif($api_string==='get-supplier-details' && ctype_alnum($request->get('c'))) {
+            $params=[];
+            $params['clientID'] = $client_id;
+            $supplier_code = Utilities::clean_string($request->get('c'));
+            $api_url = 'suppliers/details/'.$supplier_code;
+            $response = $api_caller->sendRequest('get',$api_url,$params,false);
+            header("Content-type: application/json");            
+            if(is_array($response)) {
+              echo json_encode($response);
+            } else {
+              echo $response;
+            }                    
         }
         exit;
     }

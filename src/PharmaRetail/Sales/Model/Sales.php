@@ -121,8 +121,8 @@ class Sales
 		// 	}
 		// }
 
-		if( isset($params['mobileNo']) && $params['mobileNo'] != '') {
-			if(! is_numeric($params['mobileNo'])) {
+		if( isset($params['mobileNo']) && $params['mobileNo'] !== '') {
+			if(!is_numeric($params['mobileNo'])) {
 				$errors['mobileNo'] = $this->_errorDescriptions('mobileNo');
 			}
 		}
@@ -246,7 +246,7 @@ class Sales
 		}		
 	}
 
-	public function get_sales($page_no=1,$per_page=200,$search_params=array()) {
+	public function get_sales($page_no=1, $per_page=200, $search_params = []) {
 
 		// fetch client id
 		$client_id = Utilities::get_current_client_id();
@@ -271,6 +271,32 @@ class Sales
 			);
 		}	
 	}
+
+	public function get_sales_by_patient($page_no=1, $per_page=200, $search_params = []) {
+
+		// fetch client id
+		$client_id = Utilities::get_current_client_id();
+
+		// call api.
+		$api_caller = new ApiCaller();
+		$response = $api_caller->sendRequest('get','sales-by-customer',$search_params);
+		$status = $response['status'];
+		if ($status === 'success') {
+			return array(
+				'status' => true,
+				'sales' => $response['response']['sales'], 
+				'total_pages' => $response['response']['total_pages'],
+				'total_records' => $response['response']['total_records'],
+				'record_count' =>  $response['response']['this_page'],
+				'query_totals' => $response['response']['query_totals'],
+			);
+		} elseif($status === 'failed') {
+			return array(
+				'status' => false, 
+				'apierror' => $response['reason']
+			);
+		}	
+	}	
 
 	public function get_sales_details($invoice_code='', $by_bill_no=false) {
 		// fetch client id

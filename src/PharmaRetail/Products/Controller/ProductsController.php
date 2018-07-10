@@ -10,39 +10,45 @@ use Atawa\Template;
 use Atawa\Flash;
 
 use PharmaRetail\Products\Model\Products;
+use PharmaRetail\Taxes\Model\Taxes;
 
 class ProductsController
 {
     protected $views_path;
 
-    public function __construct() 
-    {
+    public function __construct() {
         $this->views_path = __DIR__.'/../Views/';
+        $this->taxes_model = new Taxes;        
     }
 
     public function createMedicines(Request $request) {
 
-
-        $errors = array();
+        $errors = $taxes = $taxes_a = [];
         $page_error = $page_success = $item_code = '';
         $upp_a = $categories_a = array(''=>'Choose');
         $update_flag=false;
-        $submitted_data = $product_details=array();
-        
-        for($i=1;$i<=1000;$i++) {
-            $upp_a[$i] = $i;
-        }
+        $submitted_data = $product_details = [];
 
+        $category_name = 'Product / Service';
+        $create_url = '/medicines/create';
+        $update_url = '/medicines/update';
+        $list_url = '/medicines/list';
+        
         # initiate classes.
         $products_api_call = new Products;
         $flash = new Flash;
 
-        # check whether the app is for Pharma or not.
-        $show_be = Utilities::show_batchno_expiry();
-        $category_name = $show_be?'Medicine':'Product';
-        $create_url = $show_be?'/medicines/create':'/products/create';
-        $update_url = $show_be?'/medicines/update':'/products/update';
-        $list_url = $show_be?'/medicines/list':'/products/list';
+        for($i=1;$i<=1000;$i++) {
+            $upp_a[$i] = $i;
+        }
+
+        $taxes_a = $this->taxes_model->list_taxes();
+        if($taxes_a['status'] && count($taxes_a['taxes'])>0 ) {
+          $taxes_raw = $taxes_a['taxes'];
+          foreach($taxes_a['taxes'] as $tax_details) {
+            $taxes[$tax_details['taxCode']] = $tax_details['taxPercent'];
+          }
+        }
 
         if($request->get('itemCode') && $request->get('itemCode')!='') {
             $item_code = Utilities::clean_string($request->get('itemCode'));
@@ -51,15 +57,15 @@ class ProductsController
                 $product_details = $products_api_response['productDetails'];
                 $update_flag = true;
             } else {
-                $flash->set_flash_message("Invalid Product code.",1);
+                $flash->set_flash_message("Invalid Medicine code.",1);
                 Utilities::redirect($list_url);
             }
             $page_title = "Update $category_name".(isset($product_details['itemName'])?' - '.$product_details['itemName']:'');
             $btn_label = "Update $category_name";
         } else {
             $btn_label = "Create $category_name";
-            $page_title = $show_be?'Medicines':'Products/Services';
-        }        
+            $page_title = 'Product / Service';
+        }
 
         $categories_a = $categories_a+$products_api_call->get_product_categories();
 
@@ -92,7 +98,6 @@ class ProductsController
             $submitted_data = $product_details;            
         }
 
-
         // prepare form variables.
         $template_vars = array(
             'page_error' => $page_error,
@@ -107,27 +112,23 @@ class ProductsController
             'categories' => $categories_a,
             'comps' => array(),
             'upp_a' => $upp_a,
-            'show_be' => $show_be,
             'presc_options_a' => [0 => 'No', 1 => 'Yes'],
+            'item_types_a' => ['p' => 'Product', 's' => 'Service'],
+            'tax_rates_a' => ['' => 'Choose'] + $taxes,
         );
 
         // build variables
         $controller_vars = array(
             'page_title' => $page_title,
-            'icon_name' => $show_be?'fa fa-medkit':'fa fa-tasks',
+            'icon_name' => 'fa fa-tasks',
         );
 
         // render template
         $template = new Template($this->views_path);
-        if($show_be) {
-          return array($template->render_view('medicine-create', $template_vars), $controller_vars);
-        } else {
-          return array($template->render_view('products-create', $template_vars), $controller_vars);
-        }
+        return array($template->render_view('products-create', $template_vars), $controller_vars);
     }
 
-    public function listMedicines(Request $request)
-    {
+    public function listMedicines(Request $request) {
         $products_list = $search_params = $products = array();
         $categories = array(''=>'Choose');
         $total_pages = $total_records = $record_count = $page_no = 0 ;
@@ -210,8 +211,6 @@ class ProductsController
             $page_error = $products_list['apierror'];
         }
 
-        $show_be = Utilities::show_batchno_expiry();
-
         // build variables
         $controller_vars = array(
           'page_title' => 'Products',
@@ -231,17 +230,12 @@ class ProductsController
           'search_params' => $search_params,
           'page_error' => $page_error,
           'page_success' => $page_success,
-          'show_be' => $show_be,
           'flash_obj'  => $flash
         );
 
         // render template
         $template = new Template($this->views_path);
-        if($show_be) {
-          return array($template->render_view('medicines-list', $template_vars), $controller_vars);        
-        } else {
-          return array($template->render_view('products-list', $template_vars), $controller_vars);        
-        }
+        return array($template->render_view('products-list', $template_vars), $controller_vars);        
     }
 
 }

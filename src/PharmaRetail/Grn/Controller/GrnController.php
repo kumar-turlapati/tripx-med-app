@@ -114,14 +114,16 @@ class GrnController
 
         if(count($request->request->all()) > 0) {
             $search_params = $request->request->all();
-        } elseif($request->get('fromDate')) {
-            $search_params['fromDate'] = $request->get('fromDate');
-        } elseif($request->get('toDate')) {
-            $search_params['toDate'] =  $request->get('toDate');
-        } elseif($request->get('supplierID')) {
-            $search_params['supplierID'] =  $request->get('supplierID');                     
         } else {
-            $search_params = array();
+            if(!is_null($request->get('fromDate'))) {
+              $search_params['fromDate'] = $request->get('fromDate');
+            }
+            if(!is_null($request->get('toDate'))) {
+              $search_params['toDate'] =  $request->get('toDate');
+            }
+            if(!is_null($request->get('supplierID'))) {
+              $search_params['supplierID'] =  $request->get('supplierID');
+            }
         }
 
         # search GRN from and to dates.

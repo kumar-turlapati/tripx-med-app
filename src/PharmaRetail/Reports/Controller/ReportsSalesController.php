@@ -19,8 +19,7 @@ class ReportsSalesController
 	$this->views_path = __DIR__.'/../Views/';
   }
 
-  public function salesRegister(Request $request) 
-  {
+  public function salesRegister(Request $request) {
 
         $from_date = $request->get('fromDate');
         $to_date = $request->get('toDate');
@@ -128,8 +127,7 @@ class ReportsSalesController
         $pdf->Output();             
   }
 
-  public function printSalesSummaryByMonth(Request $request) 
-  {
+  public function printSalesSummaryByMonth(Request $request) {
         $month = $request->get('month');
         $year = $request->get('year');
 
@@ -412,7 +410,6 @@ class ReportsSalesController
   }
 
   public function patientBillSummary(Request $request) {
-
     $refNo = $request->get('refNo');
     $regType = $request->get('regType');
 

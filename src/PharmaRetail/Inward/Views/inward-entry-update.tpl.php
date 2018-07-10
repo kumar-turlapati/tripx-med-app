@@ -3,14 +3,8 @@
   // dump($form_data, $form_errors);
   // dump($form_errors);
   // dump($form_data);
+  // dump($taxes, $taxes_raw);
   // exit;
-
-  // dump($total_item_rows);
-
-  # create dynamic variables for Tax.
-  foreach($taxes as $key=>$value) {
-    ${'taxAmount_'.$key} = 0;
-  }
 
   if(isset($form_data['purchaseDate'])) {
     $purchase_date = date("d-m-Y", strtotime($form_data['purchaseDate']));
@@ -73,16 +67,31 @@
     $remarks = $form_data['remarks'];
   } else {
     $remarks = '';
-  }  
+  }
+  if(isset($form_data['supplierState']) && ((int)$form_data['supplierState'] === (int)$client_business_state)) {
+    $supply_type = 'inter';
+  } else {
+    $supply_type = 'intra';
+  }
+  if(isset($form_data['supplierState'])) {
+    $supplier_state = $form_data['supplierState'];
+  } else {
+    $supplier_state = 0;
+  }
+  if(isset($form_data['supplierGstNo'])) {
+    $supplier_gst_no = $form_data['supplierGstNo'];
+  } else {
+    $supplier_gst_no = '';
+  }
 ?>
 <div class="row">
   <div class="col-lg-12"> 
     <section class="panelBox">
       <div class="panelBody">
         <?php echo $utilities->print_flash_message() ?>
-        <?php if($page_error !== ''): ?>
+        <?php if($api_error !== ''): ?>
           <div class="alert alert-danger" role="alert">
-            <strong>Error!</strong> <?php echo $page_error ?> 
+            <strong>Error!</strong> <?php echo $api_error ?> 
           </div>
         <?php endif; ?>
         <div class="global-links actionButtons clearfix">
@@ -93,12 +102,12 @@
           </div>
         </div>
 
-        <form class="form-validate form-horizontal" method="POST" id="inwardEntryForm">
+        <form class="form-validate form-horizontal" method="POST" id="inwardEntryForm" autocomplete="off">
           <div class="panel">
             <div class="panel-body">
               <h2 class="hdg-reports borderBottom">Transaction Details</h2>
               <div class="form-group">
-                <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <div class="col-sm-12 col-md-4 col-lg-4">
                   <label class="control-label">Date of purchase (dd-mm-yyyy)</label>
                   <div class="form-group">
                     <div class="col-lg-12">
@@ -112,7 +121,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <div class="col-sm-12 col-md-4 col-lg-4">
                   <label class="control-label">Supplier name</label>
                   <div class="select-wrap">
                     <select class="form-control" name="supplierID" id="supplierID">
@@ -122,7 +131,7 @@
                               $selected = 'selected="selected"';
                             } else {
                               $selected = '';
-                            }                   
+                            }                      
                       ?>
                         <option value="<?php echo $key ?>" <?php echo $selected ?>>
                           <?php echo $value ?>
@@ -134,7 +143,7 @@
                     <span class="error"><?php echo $form_errors['supplierID'] ?></span>
                   <?php endif; ?>              
                 </div>
-                <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <div class="col-sm-12 col-md-4 col-lg-4">
                   <label class="control-label">Indent number</label>
                   <input 
                     type="text" 
@@ -149,7 +158,7 @@
                 </div>           
               </div>
               <div class="form-group">
-                <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <div class="col-sm-12 col-md-4 col-lg-4">
                   <label class="control-label">Purchaser order (PO) No.</label>
                   <input 
                     type="text" 
@@ -162,7 +171,7 @@
                       <span class="error"><?php echo $form_errors['poNo'] ?></span>
                   <?php endif; ?>              
                 </div>
-                <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <div class="col-sm-12 col-md-4 col-lg-4">
                   <label class="control-label">Payment method</label>
                   <div class="select-wrap">
                     <select class="form-control" name="paymentMethod" id="paymentMethod">
@@ -184,7 +193,7 @@
                     <?php endif; ?>
                   </div>
                 </div>
-                <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <div class="col-sm-12 col-md-4 col-lg-4">
                     <label class="control-label">Credit period (in days)</label>
                     <div class="select-wrap">
                       <select class="form-control" name="creditDays" id="creditDays">
@@ -205,25 +214,68 @@
                         <span class="error"><?php echo $form_errors['creditDays'] ?></span>
                       <?php endif; ?>
                     </div>
-                  </div>
+                </div>
               </div>
               <div class="form-group">
                 <div class="col-sm-12 col-md-4 col-lg-4">
-                  <label class="control-label">Bill discount (in %)</label>
-                  <input 
-                    type="text"
-                    class="form-control noEnterKey"
-                    name="billDiscount"
-                    id="billDiscount"
-                    value="<?php //echo $bill_discount ?>"
-                    maxlength="5"
-                  >
-                  <?php if(isset($form_errors['billDiscount'])): ?>
-                      <span class="error"><?php echo $form_errors['billDiscount'] ?></span>
-                  <?php endif; ?>         
-                  <p class="blue" align="justify">To avoid calculation of manual discount per each item add percentage here. This will be applied against all items in this bill.</p>
+                  <label class="control-label">Supplier location</label>
+                  <div class="select-wrap">
+                    <select class="form-control" name="supplierState" id="supplierState" disabled>
+                      <?php 
+                        foreach($states_a as $key=>$value): 
+                          if((int)$supplier_state === (int)$key) {
+                            $selected = 'selected="selected"';
+                          } else {
+                            $selected = '';
+                          }                
+                      ?>
+                        <option value="<?php echo $key ?>" <?php echo $selected ?>>
+                          <?php echo $value ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <?php if(isset($form_errors['supplierState'])): ?>
+                      <span class="error"><?php echo $form_errors['supplierState'] ?></span>
+                    <?php endif; ?>
+                  </div>
                 </div>
-              </div>              
+                <div class="col-sm-12 col-md-4 col-lg-4">
+                  <label class="control-label">Supplier GST No.</label>
+                  <input 
+                    type="text" 
+                    class="form-control noEnterKey" 
+                    name="supplierGSTNo"
+                    id="supplierGSTNo" 
+                    value="<?php echo $supplier_gst_no ?>"
+                    disabled
+                  >
+                  <?php if(isset($form_errors['supplierGSTNo'])): ?>
+                      <span class="error"><?php echo $form_errors['supplierGSTNo'] ?></span>
+                  <?php endif; ?>              
+                </div>
+                <div class="col-sm-12 col-md-4 col-lg-4">
+                    <label class="control-label">Supply type</label>
+                    <div class="select-wrap">
+                      <select class="form-control" name="supplyType" id="supplyType" disabled>
+                        <?php 
+                          foreach($supply_type_a as $key=>$value):
+                            if($supply_type === $key) {
+                              $selected = 'selected="selected"';
+                            } else {
+                              $selected = '';
+                            }
+                        ?>
+                          <option value="<?php echo $key ?>" <?php echo $selected ?>>
+                            <?php echo $value ?>
+                          </option>
+                        <?php endforeach; ?>
+                      </select>
+                      <?php if(isset($form_errors['supplyType'])): ?>
+                        <span class="error"><?php echo $form_errors['supplyType'] ?></span>
+                      <?php endif; ?>
+                    </div>
+                </div>
+              </div>
             </div>
           </div>
           <h2 class="hdg-reports">Item Details</h2>
@@ -234,24 +286,24 @@
             <table class="table table-striped table-hover item-detail-table font11" id="purchaseTable">
               <thead>
                 <tr>
-                  <th style="width:260px;" class="text-center purItem">Item name</th>
+                  <th style="width:180px;" class="text-center purItem">Item name</th>
+                  <th style="width:80px;" class="text-center purItem">HSN / SAC Code</th>                  
                   <th style="width:50px;" class="text-center">Received<br />qty.</th>
                   <th style="width:50px" class="text-center">Free<br />qty.</th>
                   <th style="width:50px" class="text-center">Billed<br />qty.</th>                  
                   <th style="width:50px" class="text-center">Batch no.</th>
                   <th style="width:55px" class="text-center">ExpDate<br />(mm/yy)</th>
-                  <th style="width:55px" class="text-center">MRP<br />(Rs.)</th>
-                  <th style="width:55px" class="text-center">Rate / Unit<br />(Rs.)</th>
+                  <th style="width:55px" class="text-center">MRP<br />( in Rs. )</th>
+                  <th style="width:55px" class="text-center">Rate / Unit<br />( in Rs. )</th>
                   <th style="width:55px" class="text-center">Gross Amt.<br />( in Rs. )</th>
                   <th style="width:55px" class="text-center">Discount<br />( in Rs. )</th>                  
                   <th style="width:70px" class="text-center">Taxable Amt.<br />( in Rs. )</th>
-                  <th style="width:100px" class="text-center">G.S.T<br />(in %)</th>
+                  <th style="width:70px" class="text-center">G.S.T<br />( in % )</th>
                 </tr>
               </thead>
               <tbody>
               <?php
-                $items_total =  $total_tax_amount = $items_tot_after_discount = $discount_amount = 0;
-                $disabled = $is_grn_generated===true?'disabled':'';
+                $items_total =  $total_tax_amount = $items_tot_after_discount = 0;
 
                 for($i=1;$i<=$total_item_rows;$i++):
 
@@ -263,12 +315,12 @@
                   if( isset($form_data['inwardQty'][$i-1]) && $form_data['inwardQty'][$i-1] !== '' ) {
                     $inward_qty = $form_data['inwardQty'][$i-1];
                   } else {
-                    $inward_qty = 0;
+                    $inward_qty = '';
                   }
                   if( isset($form_data['freeQty'][$i-1]) && $form_data['freeQty'][$i-1] !== '' ) {
                     $free_qty = $form_data['freeQty'][$i-1];
                   } else {
-                    $free_qty = 0;
+                    $free_qty = '';
                   }
                   if( isset($form_data['batchNo'][$i-1]) &&  $form_data['batchNo'][$i-1] !== '' ) {
                     $batch_no = $form_data['batchNo'][$i-1];
@@ -280,7 +332,7 @@
                   } else {
                     $exp_date = '';
                   }
-                  if( isset($form_data['expDate'][$i-1]) && $form_data['expDate'][$i-1] !== '' ) {
+                  if( isset($form_data['mrp'][$i-1]) && $form_data['mrp'][$i-1] !== '' ) {
                     $mrp = $form_data['mrp'][$i-1];
                   } else {
                     $mrp = '';
@@ -298,22 +350,30 @@
                   if( isset($form_data['itemDiscount'][$i-1]) && $form_data['itemDiscount'][$i-1] !== '' ) {
                     $item_discount = $form_data['itemDiscount'][$i-1];
                   } else {
-                    $item_discount = 0;
+                    $item_discount = '';
                   }                  
 
                   $billed_qty = $inward_qty-$free_qty;
                   $gross_amount = $billed_qty*$item_rate;
-
                   $item_amount = $gross_amount-$item_discount;
-
-                  $tax_amount = $item_amount*$tax_percent/100;
+                  $tax_amount = round($item_amount*$tax_percent/100,2);
 
                   $items_total += $item_amount;
                   $total_tax_amount += $tax_amount;
-                  $discount_amount += $item_discount;
+
+                  if(isset($taxable_values[$tax_percent])) {
+                    $taxable = $taxable_values[$tax_percent] + $item_amount;
+                    $gst_value = $taxable_gst_value[$tax_percent] + $tax_amount;
+
+                    $taxable_values[$tax_percent] = $taxable;
+                    $taxable_gst_value[$tax_percent] = $gst_value;
+                  } else {
+                    $taxable_values[$tax_percent] = $item_amount;
+                    $taxable_gst_value[$tax_percent] = $tax_amount;
+                  }
               ?>
                 <tr class="purchaseItemRow">
-                  <td style="width:260px;">
+                  <td style="width:180px;">
                     <input 
                       type="text" 
                       name="itemName[]" 
@@ -326,6 +386,19 @@
                       <span class="error">Invalid</span>
                     <?php endif; ?>
                   </td>
+                  <td style="width:80px;">
+                    <input 
+                      type="text" 
+                      name="hsnSacCode[]" 
+                      class="form-control inameAc noEnterKey hsnSacCode"
+                      style="font-size:12px;"
+                      id="hsnSacCode_<?php echo $i ?>"
+                      value="<?php //echo $item_name ?>"
+                    />
+                    <?php if( isset($form_errors['itemDetails'][$i-1]['hsnSacCode']) ) :?>
+                      <span class="error">Invalid</span>
+                    <?php endif; ?>
+                  </td>                  
                   <td style="width:50px;">
                     <input
                       type="text"
@@ -334,7 +407,8 @@
                       placeholder="Rcvd."
                       style="width:60px;font-size:12px;"
                       id="inwRcvdQty_<?php echo $i ?>"
-                      value="<?php echo $inward_qty ?>"                      
+                      value="<?php echo $inward_qty ?>"
+                      title="Last transaction details for the item will be fetched automatically."                    
                     />
                     <?php if( isset($form_errors['itemDetails'][$i-1]['inwardQty']) ) :?>
                       <span class="error">Invalid</span>
@@ -375,8 +449,8 @@
                       class="form-control noEnterKey"
                       style="width:70px;font-size:12px;"
                       id="batchNo_<?php echo $i ?>"
-                      value="<?php echo substr($batch_no,8) ?>"
-                      maxlength="12"         
+                      value="<?php echo $batch_no ?>"
+                      maxlength="12"                     
                     />
                     <?php if( isset($form_errors['itemDetails'][$i-1]['batchNo']) ) :?>
                       <span class="error">Invalid</span>
@@ -473,16 +547,11 @@
                           foreach($taxes as $key=>$value):
                             if((float)$value === (float)$tax_percent) {
                               $selected = 'selected="selected"';
-                              if( isset(${"taxAmount_".$key}) ) {
-                                ${"taxAmount_".$key} += $tax_amount;
-                              } else {
-                                ${"taxAmount_".$key} = $tax_amount;                                
-                              }
                             } else {
                               $selected = '';
                             }
                         ?>
-                          <option value="<?php echo (float)$value ?>" <?php echo $selected ?>>
+                          <option value="<?php echo number_format((float)$value,2) ?>" <?php echo $selected ?>>
                             <?php echo $value ?>
                           </option>
                         <?php endforeach; ?>                            
@@ -495,100 +564,39 @@
                   <input 
                     type="hidden" 
                     id="inwItemTaxAmt_<?php echo $i ?>"
-                    data-rate="<?php echo (int)$tax_percent ?>"
+                    data-rate="<?php echo $tax_percent ?>"
                     value="<?php echo $tax_amount ?>"
                     class="inwItemTaxAmount"
                   />
                 </tr>
               <?php 
                 endfor;
-                
-                $grand_total = $items_total+$total_tax_amount+$other_taxes+$shipping_charges;
-                $net_pay = $grand_total+$adjustment;
-                $round_off = round(round($net_pay)-round($net_pay,2),2);
-                $net_pay = round($net_pay,0);
+
+                $items_tot_after_discount = $items_total-($items_total*$discount_percent)/100;
+                $grand_total = $items_tot_after_discount+$total_tax_amount+
+                               $other_taxes+$shipping_charges;
+
+                $net_pay = $grand_total+$adjustment+$round_off;
               ?>
-                <input type = "hidden" id="inwDiscountPercent" name="discountPercent" value="0" />
                 <tr>
-                  <td colspan="11" align="right" style="vertical-align:middle;font-weight:bold;font-size:14px;">Total taxable amount</td>
+                  <td colspan="12" align="right" style="vertical-align:middle;font-weight:bold;font-size:14px;">Total Taxable Value</td>
                   <td id="inwItemsTotal" align="right" style="vertical-align:middle;font-weight:bold;font-size:14px;"><?php echo round($items_total, 2) ?></td>
                 </tr>
-                <?php if( is_array($taxes_raw) && count($taxes_raw)>0 ): ?>
-                  <?php
-                    foreach($taxes_raw as $tax_details):
-                      $tax_label = $tax_details['taxLabel'];
-                      $tax_percent = (float)$tax_details['taxPercent'];
-                      $tax_code = $tax_details['taxCode'];
-                      if( isset(${"taxAmount_".$tax_code}) ) {
-                        $tax_amount = ${"taxAmount_".$tax_code};
-                      } else {
-                        $tax_amount = 0;
-                      }
-                  ?>
-                    <tr>
-                      <td colspan="11" align="right" style="vertical-align:middle;font-weight:bold;font-size:14px;">(+) <?php echo $tax_label ?></td>
-                      <td align="right" id="taxAmount_<?php echo $tax_code ?>" class="taxAmounts" style="vertical-align:middle;font-weight:bold;font-size:14px;"><?php echo round($tax_amount,2) ?></td>
-                    </tr>
-                    <input type="hidden" value="<?php echo $tax_percent ?>" id="<?php echo $tax_code ?>" class="taxPercents" />
-                  <?php endforeach; ?>
-                <?php endif;?>
                 <tr>
-                  <td style="vertical-align:middle;font-size:14px;text-align:right;font-weight:bold;" colspan="11" align="right">(+) Other taxes</td>
-                  <td style="vertical-align:middle;font-size:14px;text-align:right;font-weight:bold;">
-                    <input
-                      type = "text"
-                      class="form-control noEnterKey"
-                      maxlength="10"
-                      id="inwAddlTaxes"
-                      name="otherTaxes"
-                      value="<?php echo round($other_taxes,2) ?>"
-                      style="text-align:right;"
-                    >
-                  </td>
+                  <td colspan="12" align="right" style="vertical-align:middle;font-weight:bold;font-size:14px;">(+) G.S.T</td>
+                  <td align="right" id="inwItemTaxAmount" class="taxAmounts" style="vertical-align:middle;font-weight:bold;font-size:14px;"><?php echo round($total_tax_amount, 2) ?></td>
                 </tr>
                 <tr>
-                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="11" align="right">(+) Freight / Shipping charges</td>
-                  <td style="vertical-align:middle;font-weight:bold;text-align:right;font-size:14px;">
-                    <input
-                      type = "text"
-                      class="form-control noEnterKey"
-                      maxlength="10"
-                      id="inwShippingCharges"
-                      name="shippingCharges"
-                      value="<?php echo round($shipping_charges,2) ?>"
-                      style="text-align:right;"
-                    >
-                  </td>
+                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="12" align="right">(+ or -) Round off</td>
+                  <td style="vertical-align:middle;text-align:right;font-size:14px;" id="roundOff"><?php echo round($round_off,2) ?></td>
                 </tr>
                 <tr>
-                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="11" align="right">Grand total</td>
-                  <td style="vertical-align:middle;text-align:right;font-size:14px;font-weight:bold;" id="inwTotalAmount"><?php echo round($grand_total,2) ?></td>
-                </tr>
-                <tr>
-                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="11" align="right">(+/-) Adjustments</td>
-                  <td style="vertical-align:middle;text-align:right;font-size:14px;">
-                    <input
-                      type = "text"
-                      class="form-control noEnterKey"
-                      maxlength="10"
-                      id="inwAdjustment"
-                      name="adjustment"
-                      value="<?php echo round($adjustment, 2) ?>"
-                      style="text-align:right;"
-                    >
-                  </td>
-                </tr>                
-                <tr>
-                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="11" align="right">Round off</td>
-                  <td style="vertical-align:middle;text-align:right;font-size:14px;font-weight:bold;" id="roundOff"><?php echo number_format($round_off,2) ?></td>
-                </tr>
-                <tr>
-                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="11" align="right">Total amount</td>
-                  <td style="vertical-align:middle;text-align:right;font-size:18px;font-weight:bold;" id="inwNetPay"><?php echo round($net_pay,2) ?></td>
+                  <td style="vertical-align:middle;font-weight:bold;font-size:14px;" colspan="12" align="right">Total Amount</td>
+                  <td style="vertical-align:middle;text-align:right;font-size:18px;" id="inwNetPay"><?php echo round($net_pay,2) ?></td>
                 </tr>
                 <tr>
                   <td style="vertical-align:middle;font-weight:bold;" align="center">Notes / Comments</td>
-                  <td style="vertical-align:middle;text-align:right;" colspan="11">
+                  <td style="vertical-align:middle;text-align:right;" colspan="12">
                     <textarea
                       class="form-control noEnterKey"
                       rows="3"
@@ -597,22 +605,82 @@
                       name="remarks"
                     ><?php echo $remarks ?></textarea>
                   </td>
-                </tr>                 
+                </tr>
+                <tr>
+                  <td colspan="13" style="text-align:center;font-weight:bold;font-size:16px;">GST Summary</td>
+                </tr>
+                <tr style="padding:0px;margin:0px;">
+                  <td colspan="13" style="padding:0px;margin:0px;">
+                    <table class="table table-striped table-hover font11 valign-middle">
+                      <thead>
+                        <th style="text-align:center;">GST Rate (in %)</th>
+                        <th style="text-align:right;">Taxable Amount (in Rs.)</th>
+                        <th style="text-align:right;">IGST (in Rs.)</th>
+                        <th style="text-align:right;">CGST (in Rs.)</th>
+                        <th style="text-align:right;">SGST (in Rs.)</th>
+                      </thead>
+                      <tbody>
+                      <?php
+                        $tot_taxable_value = $tot_igst_amount = $tot_cgst_amount = $tot_sgst_amount = 0;
+                        foreach($taxes as $tax_code => $tax_percent):
+                          if( isset($taxable_values[$tax_percent]) ) {
+                            $taxable_value = $taxable_values[$tax_percent];
+                            $tot_taxable_value += $taxable_value;
+                          } else {
+                            $taxable_value = 0;
+                          }
+
+                          if(isset($taxable_gst_value[$tax_percent])) {
+                            if($supply_type === 'inter') {
+                              $cgst_amount = $sgst_amount = round($taxable_gst_value[$tax_percent]/2,2);
+                              $igst_amount = 0;
+                              $tot_cgst_amount += $cgst_amount;
+                              $tot_sgst_amount += $sgst_amount;
+                            } else {
+                              $cgst_amount = $sgst_amount = 0;
+                              $igst_amount = $taxable_gst_value[$tax_percent];
+                              $tot_igst_amount += $igst_amount;
+                            }
+                          } else {
+                            $cgst_amount = $sgst_amount = $igst_amount = 0;
+                          }
+                      ?>
+                        <tr>
+                            <input type="hidden" value="<?php echo $tax_percent ?>" class="inwTaxPercents" id="<?php echo $tax_code ?>" />
+                            <input type="hidden" value="" id="taxAmount_<?php echo $tax_code ?>" class="taxAmounts" />
+                            <td class="font11" style="text-align:right;font-weight:bold;"><?php echo number_format($tax_percent, 2).' %' ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;" id="taxable_<?php echo $tax_code ?>_amount"><?php echo number_format($taxable_value,2) ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;" id="taxable_<?php echo $tax_code ?>_igst_value"><?php echo number_format($igst_amount,2)  ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;" id="taxable_<?php echo $tax_code ?>_cgst_value"><?php echo number_format($cgst_amount,2) ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;" id="taxable_<?php echo $tax_code ?>_sgst_value"><?php echo number_format($sgst_amount,2) ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                        <tr>
+                            <td class="font11" style="text-align:right;font-weight:bold;font-size:12px;">TOTALS</td>
+                            <td class="font11" style="text-align:right;font-weight:bold;font-size:12px;" id="taxable_<?php echo $tax_code ?>_amount"><?php echo number_format($tot_taxable_value,2) ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;font-size:12px;" id="taxable_<?php echo $tax_code ?>_igst_value"><?php echo number_format($tot_igst_amount,2)  ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;font-size:12px;" id="taxable_<?php echo $tax_code ?>_cgst_value"><?php echo number_format($tot_cgst_amount,2) ?></td>
+                            <td class="font11" style="text-align:right;font-weight:bold;font-size:12px;" id="taxable_<?php echo $tax_code ?>_sgst_value"><?php echo number_format($tot_sgst_amount,2) ?></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
               </tbody>
             </table>
           </div>
-
           <div class="text-center">
             <button class="btn btn-danger" id="inwCancel">
               <i class="fa fa-times"></i> Cancel
             </button>
             <button class="btn btn-primary" id="inwSave">
-              <i class="fa fa-save"></i> Update
+              <i class="fa fa-save"></i> Save
             </button>
           </div>
-          
+          <input type = "hidden" id="inwDiscountPercent" name="discountPercent" value="0" />
+          <input type = "hidden" id="cs" name="cs" value="<?php echo $client_business_state ?>" />          
         </form>
-
       </div>
     </section>
   </div>

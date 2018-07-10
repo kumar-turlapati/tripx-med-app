@@ -1,9 +1,6 @@
 <?php 
-  if(isset($template_vars) && is_array($template_vars)) {
-    extract($template_vars);
-  }
 
-  $pagination_url = '/products/list';
+  $pagination_url = '/medicines/list';
 
   $query_params = '';  
   if(isset($search_params['medname']) && $search_params['medname'] !='') {
@@ -35,7 +32,7 @@
     $query_params = '?'.implode('&', $query_params);
   }
 
-  $page_url = '/products/list';
+  $page_url = '/medicines/list';
 ?>
 <!-- Basic form starts -->
 <div class="row">
@@ -43,7 +40,7 @@
     
     <!-- Panel starts -->
     <section class="panelBox">
-      <h2 class="hdg-reports text-center">Products List</h2>
+      <h2 class="hdg-reports text-center">Medicines List</h2>
       <div class="panelBody">
         
         <?php echo $flash_obj->print_flash_message(); ?>
@@ -57,8 +54,8 @@
         <!-- Right links starts -->
         <div class="global-links actionButtons clearfix">
           <div class="pull-right text-right">
-              <a href="/products/create" class="btn btn-default">
-                <i class="fa fa-file-text-o"></i> New Product 
+              <a href="/medicines/create" class="btn btn-default">
+                <i class="fa fa-file-text-o"></i> New Medicine
               </a>
           </div>
         </div>
@@ -67,7 +64,7 @@
 		<div class="filters-block">
 			<div id="filters-form">
 			  <!-- Form starts -->
-			  <form class="form-validate form-horizontal" method="POST" action="/medicines/list">
+			 <form class="form-validate form-horizontal" method="POST" action="<?php echo $page_url ?>">
 				<div class="form-group">
           <div class="col-sm-12 col-md-1 col-lg-1 text-right">
 					  <label class="control-label text-right"><b>Filter by</b></label>          
@@ -138,7 +135,7 @@
                     <td class="text-left"><?php echo $item_code ?></td>                    
                     <td class="text-left med-name">
                       <a 
-                        href="/products/update/<?php echo $item_code ?>"
+                        href="/medicines/update/<?php echo $item_code ?>"
                         class="hyperlink"
                         title="click here to Edit medicine details"
                       >

@@ -39,7 +39,6 @@ class GrnControllerNew
     $form_data = $form_errors = $suppliers_a = array();
     $total_item_rows = 0;
     $api_error = '';
-    $show_be = Utilities::show_batchno_expiry();
 
     if( count($request->request->all()) > 0 ) {
       $submitted_data = $request->request->all();
@@ -141,14 +140,9 @@ class GrnControllerNew
       'payment_methods' => Constants::$PAYMENT_METHODS_PURCHASE,
       'total_item_rows' => count($form_data['itemName']),
       'api_error' => $api_error,
-      'show_be' => $show_be,
     );
 
-    if($show_be) {
-      return array($this->template->render_view('grn-create',$template_vars),$controller_vars);
-    } else {
-      return array($this->template->render_view('grn-create-oc',$template_vars),$controller_vars);
-    }
+    return array($this->template->render_view('grn-create',$template_vars),$controller_vars);
   }
 
 /******************************* Private functions should start from here ***********************/

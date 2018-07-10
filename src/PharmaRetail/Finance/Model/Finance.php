@@ -113,7 +113,7 @@ class Finance
 		}
 	}
 
-	public function get_receivables_ason($page_no=1, $per_page=10) {
+	public function get_receivables_ason($page_no=1, $per_page=100) {
 		$client_id = Utilities::get_current_client_id();
 		$end_point = 'reports/receivables-ason/'.$client_id;
 

@@ -145,7 +145,7 @@
                   <input type="text" class="form-control" name="billNo" id="billNo" value="<?php echo $billNo ?>" disabled>
                 </div>*/ ?>
                 <div class="col-sm-12 col-md-4 col-lg-4">
-                  <label class="control-label">Mode of Sale </label>
+                  <label class="control-label">Mode of sale </label>
                   <div class="select-wrap">
                     <select class="form-control" id="saleMode" name="saleMode">
                       <?php 

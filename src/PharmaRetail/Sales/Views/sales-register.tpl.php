@@ -59,7 +59,7 @@
     
     <!-- Panel starts -->
     <section class="panelBox">
-              <h2 class="hdg-reports text-center">Daywise Sales List&nbsp;-&nbsp;<?php echo ($saleType!==''?Constants::$SALE_TYPES[$saleType]:'All') ?></h2>
+              <h2 class="hdg-reports text-center">Daywise Sales Register&nbsp;-&nbsp;<?php echo ($saleType!==''?Constants::$SALE_TYPES[$saleType]:'All') ?></h2>
       <div class="panelBody">
         <?php echo Utilities::print_flash_message() ?>
 

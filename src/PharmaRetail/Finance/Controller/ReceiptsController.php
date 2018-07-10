@@ -287,11 +287,54 @@ class ReceiptsController
    */
   public function receivablesListAsonAction(Request $request) {
 
-    $receivables = array();
+    $page_no = $request->get('pageNo')!==null?Utilities::clean_string($request->get('pageNo')):1;
+    $from_date = $request->get('fromDate')!==null?Utilities::clean_string($request->get('fromDate')):date("d-m-Y");
+    $to_date = $request->get('toDate')!==null?Utilities::clean_string($request->get('toDate')):date("d-m-Y");
+    $per_page = 100;
+
+    $receivables = [];
+    $search_params = array(
+      'fromDate' => $from_date,
+      'toDate' => $to_date,
+      'pageNo' => $page_no,
+      'perPage' => $per_page,
+    );
 
      // initiate finance model
     $fin_model = new Finance();
-    $api_response = $fin_model->get_receivables_ason();
+    $api_response = $fin_model->get_receivables_ason($search_params);
+    if($api_response['status']) {
+      if(count($api_response['data']['response']['receivables'])>0) {
+          $slno = Utilities::get_slno_start(count($api_response['data']['response']['receipts']),$per_page,$page_no);
+          $to_sl_no = $slno+$per_page;
+          $slno++;
+          if($page_no<=3) {
+            $page_links_to_start = 1;
+            $page_links_to_end = 10;
+          } else {
+            $page_links_to_start = $page_no-3;
+            $page_links_to_end = $page_links_to_start+10;            
+          }
+          if($api_response['data']['response']['total_pages']<$page_links_to_end) {
+            $page_links_to_end = $api_response['data']['response']['total_pages'];
+          }
+          if($api_response['data']['response']['this_page'] < $per_page) {
+            $to_sl_no = ($slno+$api_response['data']['response']['this_page'])-1;
+          }
+
+          $vouchers_a = $api_response['data']['response']['receipts'];
+          $total_pages = $api_response['data']['response']['total_pages'];
+          $total_records = $api_response['data']['response']['total_records'];
+          $record_count = $api_response['data']['response']['this_page'];
+      } else {
+        $page_error = $api_response['apierror'];
+      }
+    } else {
+      $page_error = $api_response['apierror'];
+    }
+
+
+
 
     if($api_response['status']===true) {
       $receivables = $api_response['receivables'];

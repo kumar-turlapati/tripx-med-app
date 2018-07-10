@@ -137,8 +137,6 @@ class ReportsInventoryController
         );
 
         $inven_api_response = $inven_api->get_stock_report($params);
-        // dump($inven_api_response);
-        // exit;
         if($inven_api_response['status']===false) {
             die("<h1>No data is available. Change Report Filters and Try again</h1>");
         } else {
@@ -259,7 +257,7 @@ class ReportsInventoryController
         $pdf->Output(); 
   }
 
-/**
+ /**
    * Print Stock Report New API
   **/
   public function stockReportNew(Request $request) {

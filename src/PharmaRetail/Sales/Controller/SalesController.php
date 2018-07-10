@@ -229,7 +229,7 @@ class SalesController
         // render template
         $template = new Template($this->views_path);
         return array($template->render_view('sales-view', $template_vars), $controller_vars);
-    }    
+    }  
 
     public function salesListAction(Request $request)
     {
@@ -360,6 +360,135 @@ class SalesController
         $template = new Template($this->views_path);
         return array($template->render_view('sales-register', $template_vars), $controller_vars);       
     }
+
+    public function salesListByPatientAction(Request $request)
+    {
+
+        $search_params = $sales_a = $query_totals = array();
+
+        $total_pages = $total_records = $record_count = $page_no = 0;
+        $slno = $to_sl_no = $page_links_to_start =  $page_links_to_end = 0;
+        $page_success = $page_error = '';
+        $sale_modes = Constants::$SALE_TYPES;
+        $payment_methods = Constants::$PAYMENT_METHODS;
+        $query_totals = 0;
+
+        $page_no=1;
+        $per_page=200;
+
+        # check for filter variables.
+        if(is_null($request->get('pageNo'))) {
+          $search_params['pageNo'] = 1;
+        } else {
+          $search_params['pageNo'] = $page_no = (int)$request->get('pageNo');
+        }
+        if(is_null($request->get('perPage'))) {
+          $search_params['perPage'] = 200;
+        } else {
+          $search_params['perPage'] = $per_page = (int)$request->get('perPage');
+        }
+        if(is_null($request->get('fromDate'))) {
+          $search_params['fromDate'] = date("d-m-Y");
+        } else {
+          $search_params['fromDate'] = $request->get('fromDate');
+        }
+        if(is_null($request->get('toDate'))) {
+          $search_params['toDate'] = date("d-m-Y");
+        } else {
+          $search_params['toDate'] = $request->get('toDate');
+        }        
+        if(is_null($request->get('saleType'))) {
+          $search_params['saleType'] = '';
+        } else {
+          $search_params['saleType'] = $request->get('saleType');
+        }
+        if(is_null($request->get('paymentMethod'))) {
+          $search_params['paymentMethod'] = 99;
+        } elseif( !is_null($request->get('paymentMethod')) && (int)$request->get('paymentMethod')===99) {
+          $search_params['paymentMethod'] = '';
+        } else {
+          $search_params['paymentMethod'] = $request->get('paymentMethod');
+        }
+
+        if($search_params['paymentMethod']===99) {
+          $search_params['paymentMethod'] = '';
+        }
+
+        # initiate Model.
+        $sales_model = new Sales;
+
+        # Hit API.
+        $sales_api_call = $sales_model->get_sales_by_patient($page_no, $per_page, $search_params);
+        $api_status = $sales_api_call['status'];
+
+        # check api status
+        if($api_status) {
+
+            # check whether we got products or not.
+            if(count($sales_api_call['sales'])>0) {
+                $slno = Utilities::get_slno_start(count($sales_api_call['sales']), $per_page, $page_no);
+                $to_sl_no = $slno+$per_page;
+                $slno++;
+
+                if($page_no<=3) {
+                    $page_links_to_start = 1;
+                    $page_links_to_end = 10;
+                } else {
+                    $page_links_to_start = $page_no-3;
+                    $page_links_to_end = $page_links_to_start+10;            
+                }
+
+                if($sales_api_call['total_pages']<$page_links_to_end) {
+                    $page_links_to_end = $sales_api_call['total_pages'];
+                }
+
+                if($sales_api_call['record_count'] < $per_page) {
+                    $to_sl_no = ($slno+$sales_api_call['record_count'])-1;
+                }
+
+                $sales_a = $sales_api_call['sales'];
+                $total_pages = $sales_api_call['total_pages'];
+                $total_records = $sales_api_call['total_records'];
+                $record_count = $sales_api_call['record_count'];
+                $query_totals = $sales_api_call['query_totals']['netPay'];
+            } else {
+                $page_error = $sales_api_call['apierror'];
+            }
+
+        } else {
+            $page_error = $sales_api_call['apierror'];
+        }           
+
+         // prepare form variables.
+        $template_vars = array(
+            'sales' => $sales_a,
+            'sale_types' => array(''=>'Sale category')+Constants::$SALE_TYPES,            
+            'sale_modes' => array(''=>'All sale types')+$sale_modes,
+            'payment_methods' => array(99=>'All payment methods')+$payment_methods,
+            'page_error' => $page_error,
+            'page_success' => $page_success,
+            'total_pages' => $total_pages ,
+            'total_records' => $total_records,
+            'record_count' =>  $record_count,
+            'sl_no' => $slno,
+            'to_sl_no' => $to_sl_no,
+            'search_params' => $search_params,            
+            'page_links_to_start' => $page_links_to_start,
+            'page_links_to_end' => $page_links_to_end,
+            'current_page' => $page_no,
+            'query_totals' => $query_totals,
+        );
+
+        // build variables
+        $controller_vars = array(
+          'page_title' => 'Sales Register',
+          'icon_name' => 'fa fa-inr',
+        );
+
+        // render template
+        $template = new Template($this->views_path);
+        return array($template->render_view('sales-register-by-patient', $template_vars), $controller_vars);       
+    }    
 
     /**
      * Remove Sales Transaction.

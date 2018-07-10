@@ -27,7 +27,7 @@
     $query_params = '?'.implode('&', $query_params);
   }
   $current_date = date("d-m-Y");
-  $page_url = '/grn/list';
+  $page_url = $pagination_url = '/grn/list';
 ?>
 
 <!-- Basic form starts -->
@@ -58,7 +58,7 @@
     		<div class="panel">
           <div class="panel-body">
         	<div id="filters-form">
-            <form class="form-validate form-horizontal" method="POST">
+            <form class="form-validate form-horizontal" method="POST" action="<?php echo $page_url ?>">
         		  <div class="form-group">
                 <div class="col-sm-12 col-md-2 col-lg-1">Filter by</div>  
                 <div class="col-sm-12 col-md-2 col-lg-2">
@@ -151,7 +151,7 @@
                               </a>
                               <a class="btn btn-danger delGrn" href="javascrip:void(0)" title="Remove GRN" sid="<?php echo $grn_code ?>">
                                 <i class="fa fa-times"></i>
-                              </a>*/ ?>                      
+                              </a>*/ ?>                 
                             <?php endif; ?>
                           </div>
                         </td>
@@ -162,6 +162,9 @@
                 ?>
                 </tbody>
               </table>
+              
+              <?php include_once __DIR__."/../../../Layout/helpers/pagination.helper.php" ?>
+
           </div>
         <?php endif; ?>        
       </div>

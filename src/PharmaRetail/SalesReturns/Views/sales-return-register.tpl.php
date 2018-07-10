@@ -80,16 +80,16 @@
 			</div>
         </div>
           <div class="table-responsive">
-          <table class="table table-striped table-hover">
+          <table class="table table-striped table-hover font12">
             <thead>
               <tr>
                 <th width="5%"  class="text-center">Sl.No.</th>
-                <th width="10%" class="text-center">Sale Type</th>
-                <th width="10%" class="text-center">Material Return<br />Note (MRN) No.</th>                
-                <th width="10%" class="text-center">Return Date</th>
-                <th width="15%" class="text-center">Bill No.&Date</th>
-                <th width="8%" class="text-center">Sale Value<br />(in Rs.)</th>
-                <th width="8%" class="text-center">Return Value<br />(in Rs.)</th>
+                <th width="10%" class="text-center">Sale type</th>
+                <th width="10%" class="text-center">MRN No.</th>                
+                <th width="10%" class="text-center">Return date</th>
+                <th width="15%" class="text-center">Bill No. &amp; Date</th>
+                <th width="8%" class="text-center">Sale value<br />(in Rs.)</th>
+                <th width="8%" class="text-center">Return value<br />(in Rs.)</th>
                 <th width="13%" class="text-center">Actions</th>
               </tr>
             </thead>

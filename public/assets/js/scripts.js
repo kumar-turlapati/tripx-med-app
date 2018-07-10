@@ -770,7 +770,134 @@ function initializeJS() {
 /*************************************** Inward Material Entry JS ************************************************/
     if( $('#inwardEntryForm').length>0 ) {
 
-      $('#inwCancel').on('click', function(e){
+      jQuery('.inwRcvdQty, .inwFreeQty, .inwItemRate, .inwItemDiscount').on("blur",function(e){
+        var idArray = $(this).attr('id').split('_');
+        var rowId = idArray[1];
+        updateInwardItemRow(rowId);
+      });
+
+      jQuery('.inwItemTax').on("change", function(){
+        var idArray = $(this).attr('id').split('_');
+        var rowId = idArray[1];
+        $('#inwItemTaxAmt_'+rowId).attr('data-rate', parseFloat($(this).val()).toFixed(2) );
+
+        updateInwardItemRow(rowId);
+      });
+
+      jQuery('#supplierID').on('change', function(e){
+        var supplierCode = $(this).val();
+        jQuery.ajax("/async/get-supplier-details?c="+supplierCode, {
+          method:"GET",
+          success: function(apiResponse) {
+            if(apiResponse['status'] === 'success') {
+              var supplierDetails = apiResponse.response.supplierDetails;
+              var companyState = $('#cs').val();
+              $('#supplierState').val(supplierDetails.stateCode);
+              $('#supplierGSTNo').val(supplierDetails.tinNo);
+              if(companyState == supplierDetails.stateCode) {
+                $('#supplyType').val('intra');
+              } else {
+                $('#supplyType').val('inter');
+              }
+            }
+          },
+          error: function(e) {
+            alert('An error occurred while fetching Supplier Information.');
+          }
+        });  
+      });
+
+      /*********************** functions for inward entry **********************/
+      function updateInwardItemRow(rowId) {
+        
+        var totTaxableAmount = totalTaxAmount = finalAmount = 0;
+        var netPay = roundedNetPay = 0;
+        
+        var rcvdQty = parseFloat( returnNumber($('#inwRcvdQty_'+rowId).val()) );
+        var freeQty = parseFloat( returnNumber($('#inwFreeQty_'+rowId).val()) );
+        var itemRate = parseFloat( returnNumber($('#inwItemRate_'+rowId).val()) );
+        var inwItemDiscount = parseFloat( returnNumber($('#inwItemDiscount_'+rowId).val()) );
+        var inwItemTax = parseFloat( returnNumber($('#inwItemTax_'+rowId).val()) );
+
+        var billedQty = rcvdQty - freeQty;
+        var inwItemGrossAmount = parseFloat( returnNumber(billedQty*itemRate) );
+        var inwItemAmount = parseFloat( returnNumber(inwItemGrossAmount-inwItemDiscount) );
+        var inwItemTaxAmount = parseFloat((inwItemAmount * inwItemTax) / 100).toFixed(2);
+
+        $('#inwBillQty_'+rowId).val(billedQty);
+        $('#inwItemGrossAmount_'+rowId).val(inwItemGrossAmount);
+        $('#inwItemAmount_'+rowId).val(inwItemAmount);
+        $('#inwItemTaxAmt_'+rowId).val(inwItemTaxAmount);        
+
+        jQuery('.inwItemAmount').each(function(i, obj) {
+          if(jQuery(this).val().length === 0) {
+            iTotal = 0;
+          } else {
+            iTotal = parseFloat(returnNumber(jQuery(this).val()));
+          }
+          if( iTotal > 0 ) {
+            totTaxableAmount  += iTotal;
+          }
+        });
+
+        jQuery('.inwItemTaxAmount').each(function(i, obj) {
+          if(jQuery(this).val().length === 0) {
+            iTotal = 0;
+          } else {
+            iTotal = parseFloat(returnNumber(jQuery(this).val()));
+          }
+          if( iTotal > 0 ) {
+            totalTaxAmount  += iTotal;
+          }
+        });        
+
+        netPay = parseFloat(totTaxableAmount + totalTaxAmount);
+        roundedNetPay = Math.round(netPay);
+        finalAmount = netPay-parseFloat(roundedNetPay.toFixed(2));
+
+        $('#inwItemsTotal').text(totTaxableAmount.toFixed(2));
+        $('#inwItemTaxAmount').text(totalTaxAmount.toFixed(2));
+        $('#roundOff').text(finalAmount.toFixed(2));
+        $('#inwNetPay').text(roundedNetPay);
+
+        updateGSTSummary();
+
+        // console.log(rcvdQty, freeQty, billedQty, itemRate, inwItemGrossAmount, inwItemDiscount);
+      }
+
+      function updateGSTSummary() {
+        var taxValues = [];
+        jQuery('.inwTaxPercents').each(function(i, obj) {
+          var taxRate = $(this).val();
+          var taxCode = $(this).attr('id');
+          var totalTax = totalTaxable = 0;
+          $("input[data-rate='"+taxRate+"']").each(function(i, obj){
+            if(parseFloat( returnNumber($(this).val()) ) > 0 ) {
+              var idArray = $(this).attr('id').split('_');
+              var rowId = idArray[1];
+              var thisGrossAmount = $('#inwItemAmount_'+rowId).val();
+
+              totalTaxable = parseFloat(totalTaxable) + parseFloat(thisGrossAmount); 
+              totalTax = parseFloat(totalTax) + parseFloat($(this).val());
+            }
+          });
+
+          $("#taxAmount_"+taxCode).val(totalTax.toFixed(2));
+
+          var splitTax = parseFloat(totalTax/2).toFixed(2);
+          $('#taxable_'+taxCode+'_cgst_value').text(splitTax);
+          $('#taxable_'+taxCode+'_sgst_value').text(splitTax);
+          $('#taxable_'+taxCode+'_amount').text(totalTaxable);
+
+          // var array = [];
+          // $('.inwItemTax option[value="'+taxRate+'"]').each(function() {
+          //     console.log($(this).val(), $(this).text());
+          //     array[ $(this).val()] = $(this).text();
+          // });
+        });
+      }
+
+      jQuery('#inwCancel').on('click', function(e){
         if(confirm("Are you sure. You want to close this page?") == true) {
           window.location.href = '/purchase/list';
         } else {
@@ -778,163 +905,6 @@ function initializeJS() {
         }
         e.preventDefault();
       });
-
-      /*
-      $('.addMoreInward').on('click', function(e){
-        $('#purchaseTable tr:eq(1)').
-        clone(true).
-        insertAfter('.purchaseItemRow:last');
-        var currentItemRow = $('.purchaseItemRow').length;
-        $('.purchaseItemRow:last').
-        find('input').each(function(){
-          $(this).attr('value', '');
-        });
-        $('.purchaseItemRow:last').
-        find('select').each(function(){
-          $(this).attr('value', '0');
-        });        
-        $('.purchaseItemRow:last').
-        find('input').
-        each(function(){
-          $(this).attr({
-            'id': function(_,id) { 
-              var idArray = id.split('_');
-              return idArray[0]+'_'+parseInt(currentItemRow);
-            }
-          });            
-        });
-        $('.purchaseItemRow:last').
-        find('select').
-        each(function(){
-          $(this).attr({
-            'id': function(_,id) { 
-              var idArray = id.split('_');
-              return idArray[0]+'_'+parseInt(currentItemRow);
-            }
-          });
-        });
-        $('.purchaseItemRow:last').find('input:first').autocomplete("/async/itemsAc", {
-          width: 300,
-          cacheLength:0,
-          selectFirst:false,
-          minChars:1,
-          'max': 0,
-        });
-        e.preventDefault();
-      });
-
-      $('.removeItemInward').on('click', function(e){
-        var totalRows = $('.purchaseItemRow').length;
-        console.log(totalRows);
-        if(totalRows>1) {
-          $(this).parent().parent().remove();
-          updateInwardItemsTotal();          
-        } else {
-          alert("This row is mandatory. You can't delete all Rows!");
-        }
-        e.preventDefault();
-      });*/
-
-      jQuery('.inwFreeQty').on("blur",function(e){
-        var freeQty = parseFloat($(this).val());
-        var idArray = $(this).attr('id').split('_');
-        var rcvdId = '#inwRcvdQty_'+idArray[1];
-        var rcvdQty = parseFloat($(rcvdId).val());
-        if(isNaN(freeQty)) {
-          freeQty = 0;
-        }
-        if(isNaN(rcvdQty)) {
-          rcvdQty = 0;
-        }
-
-        if(freeQty>rcvdQty) {
-          alert('Free Qty. must be less than or equal to Received Qty.');
-          $('#inwFreeQty_'+idArray[1]).val(0);
-          $('#inwBillQty_'+idArray[1]).val(rcvdQty)
-        } else {
-          $('#inwBillQty_'+idArray[1]).val((rcvdQty-freeQty));
-          updateInwardItemAmount(idArray[1]);
-          updateInwardItemsTotal();
-        }
-      });
-
-      jQuery('.inwRcvdQty').on("blur",function(e){
-        var rcvdQty = parseFloat($(this).val());
-        var idArray = $(this).attr('id').split('_');
-        var rowId = idArray[1];
-
-        var freeId = '#inwFreeQty_'+idArray[1];
-        var freeQty = parseFloat($(freeId).val());
-        if(isNaN(freeQty)) {
-          freeQty = 0;
-        }
-        if(isNaN(rcvdQty)) {
-          rcvdQty = 0;
-        }
-
-        $('#inwBillQty_'+idArray[1]).val(rcvdQty-freeQty);
-
-        updateInwardItemAmount(idArray[1]);
-        updateInwardItemsTotal();
-        updateInwardItemTaxAmount(rowId);
-        updateInwardTaxAmounts();
-      });
-
-      jQuery('.inwItemRate').on("blur",function(){
-        var taxAmount = 0;
-        var idArray = $(this).attr('id').split('_');
-        var rowId = idArray[1];
-        updateInwardItemAmount(rowId);
-        updateInwardItemsTotal();   
-        updateInwardItemTaxAmount(rowId);
-        updateInwardTaxAmounts();
-      });
-
-      jQuery('.inwItemTax').on("change", function(){
-        var idArray = $(this).attr('id').split('_');
-        var rowId = idArray[1];
-        updateInwardItemTaxAmount(rowId, $(this).val());
-        updateInwardTaxAmounts();
-        updateInwardItemsTotal();
-      });
-
-      jQuery('.inwItemDiscount').on("blur", function(){
-        var discountGiven = parseFloat($(this).val())
-        if( !isNaN(discountGiven) ) {
-          var idArray = $(this).attr('id').split('_');
-          var rowId = idArray[1];
-          var itemTotal = parseFloat($('#inwItemGrossAmount_'+rowId).val());
-          var taxableAmount = parseFloat(itemTotal - discountGiven).toFixed(2);
-          $('#inwItemAmount_'+rowId).val(taxableAmount);
-          updateInwardItemTaxAmount(rowId);
-          updateInwardTaxAmounts();
-          updateInwardItemsTotal();
-        }
-      });
-
-      jQuery('#inwAddlTaxes, #inwAdjustment, #inwShippingCharges').on("blur", function(){
-        updateInwardItemsTotal();
-      });      
-      /*
-      jQuery('#inwDiscountPercent').on("blur", function(){
-        var discountPercent = parseFloat($(this).val());
-        if(isNaN(discountPercent)) {
-          discountPercent = 0;
-        }
-        $('.inwItemAmount').each(function(){
-          var idArray = $(this).attr('id').split('_');
-          var rowId = idArray[1];
-          updateInwardItemTaxAmount(rowId);
-        });
-        updateInwardTaxAmounts();
-        var itemsTotal = parseFloat($('#inwItemsTotal').text());
-        var discountAmount = (itemsTotal*discountPercent)/100;
-        var itemValueFinal = itemsTotal-discountAmount;
-
-        $('#inwDiscountValue').text(discountAmount.toFixed(2));
-        $('#inwItemValueFinal').text(itemValueFinal.toFixed(2));
-        updateInwardItemsTotal();
-      });*/
     }
   /*************************************** End of Inward Material Entry JS ************************************************/
 
@@ -1034,7 +1004,7 @@ function sendOTP(fpType) {
   });
 }
 
-function updateInwardItemAmount(rowId) {
+/*function updateInwardItemAmount(rowId) {
   var itemRate = parseFloat($('#inwItemRate_'+rowId).val());
   var billedQty = parseFloat($('#inwBillQty_'+rowId).val());
   var itemAmount = 0;
@@ -1133,6 +1103,30 @@ function updateInwardTaxAmounts() {
 
     $("#taxAmount_"+taxCode).text(totalTax.toFixed(2));
   });
+}*/
+
+function fetchInwardItemHistory(rowId) {
+  var itemName = $('#itemName_'+rowId).val();
+  var batchNo = $('#batchNo_'+rowId).val();
+  if(itemName.length>0 && parseInt(batchNo.length)===0) {
+    jQuery.ajax("/async/check-inward-item", {
+      method:"POST",
+      data: 'iN='+itemName,
+      success: function(response) {
+        if(response.status === 'success') {
+          var historyDetails = response.response.history[0];
+          $('#batchNo_'+rowId).val(historyDetails.batchNo.split('_')[1]);
+          $('#expDate_'+rowId).val(historyDetails.expdateMonth + '/' + historyDetails.expdateYear);
+          $('#mrp_'+rowId).val(historyDetails.mrp);
+          $('#inwItemRate_'+rowId).val(historyDetails.itemRate);
+          $('#inwItemTax_'+rowId).val(parseInt(historyDetails.taxPercent));
+        }
+      },
+      error: function(e) {
+        alert('Unable to fetch updated information. Please try again.');
+      }
+    });
+  }
 }
 
 function printSalesBill(bill_no) {
@@ -1243,6 +1237,13 @@ function monthWiseSales() {
       alert('An error occurred while loading Monthwise Sales');
     }
   });
+}
+
+function returnNumber(val) {
+  if(isNaN(val) || val.length === 0) {
+    return 0;
+  }
+  return val;
 }
 
 jQuery(document).ready(function(){

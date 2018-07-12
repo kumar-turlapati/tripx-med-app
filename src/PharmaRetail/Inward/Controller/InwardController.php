@@ -35,7 +35,7 @@ class InwardController
     $form_errors = $form_data = [];
     $api_error = '';
     
-    $total_item_rows = 25;
+    $total_item_rows = 50;
 
     for($i=1;$i<=365;$i++) {
       $credit_days_a[$i] = $i;
@@ -112,7 +112,7 @@ class InwardController
     $form_errors = $form_data = [];
     $api_error = '';
 
-    $total_item_rows = 25;
+    $total_item_rows = 50;
 
     for($i=1;$i<=365;$i++) {
       $credit_days_a[$i] = $i;
@@ -255,7 +255,7 @@ class InwardController
     $form_errors = $form_data = [];
     $page_error = '';
 
-    $total_item_rows = 25;
+    $total_item_rows = 50;
 
     for($i=1;$i<=365;$i++) {
       $credit_days_a[$i] = $i;

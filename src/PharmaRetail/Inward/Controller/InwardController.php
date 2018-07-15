@@ -203,16 +203,16 @@ class InwardController
     if(count($request->request->all()) > 0) {
       $submitted_data = $request->request->all();
       $validation_status = $this->_validate_form_data($submitted_data, $is_grn_generated);
-      if($validation_status['status']===true) {
+      if($validation_status['status']) {
         $cleaned_params = $validation_status['cleaned_params'];
         # hit api
         $api_response = $this->inward_model->updateInward($cleaned_params, $purchase_code);
-        if($api_response['status']===true) {
+        if($api_response['status']) {
           $message = 'Inward entry updated successfully with code `'.$purchase_code.'`';
           $this->flash->set_flash_message($message);
           Utilities::redirect('/inward-entry');
         } else {
-          $page_error = $api_response['apierror'];
+          $api_error = $api_response['apierror'];
           $form_data = $submitted_data;
         }
       } else {
@@ -510,7 +510,7 @@ class InwardController
           //     $batch_no = 'Invalid99';
           //   }
           // }
-          if( !ctype_alnum($batch_no) ) {
+          if( !ctype_alnum(str_replace(['_'], [''], $batch_no)) ) {
             $form_errors['itemDetails'][$key]['batchNo'] = 'Invalid batch no.';
           } else {
             $cleaned_params['itemDetails']['batchNo'][] = $batch_no;

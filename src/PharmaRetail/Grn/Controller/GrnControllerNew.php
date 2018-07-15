@@ -36,14 +36,14 @@ class GrnControllerNew
     }
 
     # initialize variables.
-    $form_data = $form_errors = $suppliers_a = array();
+    $form_data = $form_errors = $suppliers_a = [];
     $total_item_rows = 0;
     $api_error = '';
 
     if( count($request->request->all()) > 0 ) {
       $submitted_data = $request->request->all();
       $validation_status = $this->_validate_form_data($submitted_data);
-      if($validation_status['status']===true) {
+      if($validation_status['status']) {
         $cleaned_params = $validation_status['cleaned_params'];
         $cleaned_params['poNo'] = $po_no;
         # hit api

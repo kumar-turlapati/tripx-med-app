@@ -335,6 +335,8 @@
 
                   $gross_amount = round( ($inward_qty-$free_qty)*$item_rate, 2);
                   $taxable_amount = $gross_amount-$discount;
+
+                  $item_key = $item_code.'__'.$batch_no;
               ?>
                 <tr class="purchaseItemRow">
                   <td style="vertical-align:middle;"><?php echo $item_name ?></td>
@@ -343,7 +345,7 @@
                     <input
                       type="text"
                       class="form-control inwFreeQty noEnterKey"
-                      name="acceptedQty[<?php echo $item_code ?>]"
+                      name="acceptedQty[<?php echo $item_key ?>]"
                       placeholder="Accepted Qty."
                       style="text-align:right;width:70px;background-color:#f1f442;border:1px solid #000;font-weight:bold;"
                       id="acceptedQty_<?php echo $i ?>"
@@ -411,7 +413,7 @@
           </div>
 
           <div class="text-center">
-            <button class="btn btn-danger" id="Cancel">
+            <button class="btn btn-danger" id="Cancel" onclick="window.location.href = '/purchase/list';return false;">
               <i class="fa fa-times"></i> Cancel
             </button>
             <button class="btn btn-primary" id="Save">

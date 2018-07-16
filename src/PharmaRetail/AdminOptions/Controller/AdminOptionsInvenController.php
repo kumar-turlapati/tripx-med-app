@@ -304,6 +304,7 @@ class AdminOptionsInvenController
         $batch_no =  trim(str_replace($breaks,"",$data->val($iCount,'G')));
         $exp_date =  trim(str_replace($breaks,"",$data->val($iCount,'H')));
         $tax_percent =  trim(str_replace($breaks,"",$data->val($iCount,'I')));
+        $purchase_rate =  trim(str_replace($breaks,"",$data->val($iCount,'J')));
 
         if($exp_date !== '') {
           $exp_date_a = explode('/', $exp_date);
@@ -331,6 +332,7 @@ class AdminOptionsInvenController
           'expMonth' => $exp_month,
           'expYear' => $exp_year,
           'taxPercent' => $tax_percent,
+          'purchaseRate' => $purchase_rate,
         );
 
       } # end of if loop

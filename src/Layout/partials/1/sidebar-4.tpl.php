@@ -33,7 +33,7 @@
         </a>
         <ul class="sub">
           <li><a href="/sales/entry"><i class="fa fa-keyboard-o"></i> Sales Entry</a></li>
-          <li><a href="/sales-entry-with/landing-cost"><i class="fa fa-keyboard-o"></i> Sales Entry - LandingCost</a></li>          
+          <?php /*<li><a href="/sales-entry-with/landing-cost"><i class="fa fa-keyboard-o"></i> Sales Entry - LandingCost</a></li>*/ ?>
           <li><a href="/sales/list"><i class="fa fa-list-ol"></i> Daywise Sales List</a></li>
           <li><a href="/sales/list-by-patient"><i class="fa fa-smile-o"></i> Patientwise Sales List</a></li>                
           <li><a href="/sales-return/list"><i class="fa fa-repeat"></i> Daywise Sales Return List</a></li>          

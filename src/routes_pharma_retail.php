@@ -112,6 +112,11 @@ $routes->add('purchases_list', new Routing\Route('/purchase/list/{pageNo}/{perPa
     'pageNo' => 1,
     'perPage' => 100,    
 )));
+$routes->add('purchases_list_fake', new Routing\Route('/purchase/list-apex/{pageNo}/{perPage}', array(
+    '_controller' => 'PharmaRetail\\Purchases\\Controller\\PurchasesController::purchaseListFakeAction',
+    'pageNo' => 1,
+    'perPage' => 100,    
+)));
 
 // grn routes
 $routes->add('grn_create_new', new Routing\Route('/grn/create', array(

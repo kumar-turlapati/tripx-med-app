@@ -404,4 +404,115 @@ class PurchasesController
         return array($template->render_view('purchase-register', $template_vars), $controller_vars);       
     }
 
+    public function purchaseListFakeAction(Request $request)
+    {
+
+        $suppliers= $search_params = $suppliers_a = $purchases_a = array();
+
+        $total_pages = $total_records = $record_count = $page_no = 0 ;
+        $slno = $to_sl_no = $page_links_to_start =  $page_links_to_end = 0;
+        $page_success = $page_error = '';
+
+        $supplier_api_call = new Supplier;
+        $purchase_api_call = new Purchases;
+        if( $request->get('pageNo') ) {
+            $page_no = $request->get('pageNo');
+        } else {
+            $page_no = 1;
+        }
+
+        if( $request->get('perPage') ) {
+            $per_page = $request->get('perPage');
+        } else {
+            $per_page = 100;
+        }
+
+        if(count($request->request->all()) > 0) {
+          $search_params = $request->request->all();
+        } else {
+            if( !is_null($request->get('fromDate')) ) {
+              $search_params['fromDate'] = $request->get('fromDate');
+            }
+            if( !is_null($request->get('toDate')) ) {
+              $search_params['toDate'] =  $request->get('toDate');
+            }
+            if( !is_null($request->get('supplierID')) ) {
+              $search_params['supplierID'] =  $request->get('supplierID');
+            }
+        }
+
+        $supplier_api_call = new Supplier;
+        $suppliers = $supplier_api_call->get_suppliers(0,0);
+        if($suppliers['status']) {
+          $suppliers_a = array(''=>'All Suppliers')+$suppliers['suppliers'];
+        }
+
+        $purchase_api_call = $purchase_api_call->get_purchases($page_no,$per_page,$search_params);
+        $api_status = $purchase_api_call['status'];        
+
+        # check api status
+        if($api_status) {
+
+            # check whether we got products or not.
+            if(count($purchase_api_call['purchases'])>0) {
+                $slno = Utilities::get_slno_start(count($purchase_api_call['purchases']), $per_page, $page_no);
+                $to_sl_no = $slno+$per_page;
+                $slno++;
+
+                if($page_no<=3) {
+                    $page_links_to_start = 1;
+                    $page_links_to_end = 10;
+                } else {
+                    $page_links_to_start = $page_no-3;
+                    $page_links_to_end = $page_links_to_start+10;            
+                }
+
+                if($purchase_api_call['total_pages']<$page_links_to_end) {
+                    $page_links_to_end = $purchase_api_call['total_pages'];
+                }
+
+                if($purchase_api_call['record_count'] < $per_page) {
+                    $to_sl_no = ($slno+$purchase_api_call['record_count'])-1;
+                }
+
+                $purchases_a = $purchase_api_call['purchases'];
+                $total_pages = $purchase_api_call['total_pages'];
+                $total_records = $purchase_api_call['total_records'];
+                $record_count = $purchase_api_call['record_count'];
+            } else {
+                $page_error = $purchase_api_call['apierror'];
+            }
+
+        } else {
+            $page_error = $purchase_api_call['apierror'];
+        }
+
+         // prepare form variables.
+        $template_vars = array(
+            'page_error' => $page_error,
+            'page_success' => $page_success,
+            'suppliers' => $suppliers_a,
+            'purchases' => $purchases_a,
+            'total_pages' => $total_pages ,
+            'total_records' => $total_records,
+            'record_count' =>  $record_count,
+            'sl_no' => $slno,
+            'to_sl_no' => $to_sl_no,
+            'search_params' => $search_params,            
+            'page_links_to_start' => $page_links_to_start,
+            'page_links_to_end' => $page_links_to_end,
+            'current_page' => $page_no,
+        );
+
+        // build variables
+        $controller_vars = array(
+            'page_title' => 'Purchases',
+            'icon_name' => 'fa fa-compass',
+        );
+
+        // render template
+        $template = new Template($this->views_path);
+        return array($template->render_view('purchase-register-fake', $template_vars), $controller_vars);       
+    }
+
 }

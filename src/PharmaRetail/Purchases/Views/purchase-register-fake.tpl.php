@@ -1,8 +1,5 @@
 <?php
   use Atawa\Utilities;
-  if(isset($template_vars) && is_array($template_vars)) {
-    extract($template_vars); 
-  }
 
   $query_params = '';
   $current_date = date("d-m-Y");
@@ -63,7 +60,7 @@
 		  <div class="panel-body">
 			<div id="filters-form">
 			  <!-- Form starts -->
-			  <form class="form-validate form-horizontal" method="POST" action="/purchase/list">
+			  <form class="form-validate form-horizontal" method="POST" action="/purchase/list-apex">
 				<div class="form-group">
           <div class="col-sm-12 col-md-2 col-lg-1">
             Filter by

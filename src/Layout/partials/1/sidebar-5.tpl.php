@@ -45,7 +45,9 @@
         </a>
         <ul class="sub">
           <li><a href="/inward-entry"><i class="fa fa-keyboard-o"></i> Purchase Entry</a></li>
-          <li><a href="/purchase/list"><i class="fa fa-list-ol"></i> Monthwise Purchases List</a></li>          
+          <?php if( isset($_SESSION['ccode']) && $_SESSION['ccode'] !== 'GxhJXWNSC3MNALH') :?>
+            <li><a href="/purchase/list"><i class="fa fa-list-ol"></i> Monthwise Purchases List</a></li>          
+          <?php endif; ?>
         </ul>
       </li>
       <li class="sub-menu">

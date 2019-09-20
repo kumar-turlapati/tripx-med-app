@@ -354,7 +354,7 @@ function initializeJS() {
               data: data,
               method:"POST",
               success: function(batchNos) {
-                console.log(batchNos);
+                // console.log(batchNos);
                 var objLength = Object.keys(batchNos).length;
                 var bnoElement = jQuery('#batchno_'+itemIndex);
                 var uppElement = jQuery('#upp_'+itemIndex);
@@ -787,8 +787,8 @@ function initializeJS() {
               $('#ds-creditsale').text(creditSales.toFixed(2));
               $('#ds-totals').text(totalSales.toFixed(2));
               // $('#ds-returns').text(salesReturns.toFixed(2));
-              $('#ds-cash-returns').text(salesReturnsCredit.toFixed(2));
-              $('#ds-credit-returns').text(salesReturnsCashCard.toFixed(2));
+              $('#ds-cash-returns').text(salesReturnsCashCard.toFixed(2));
+              $('#ds-credit-returns').text(salesReturnsCredit.toFixed(2));
               $('#ds-netsale').text(netSales.toFixed(2));
               $('#ds-cashinhand').text(cashInHand.toFixed(2));                                          
             }

@@ -90,7 +90,7 @@ class Constants
     );
 
     public static $LOCATION_STATES = array(
-      28 => 'Andhra Pradesh',
+      37 => 'Andhra Pradesh',
       29 => 'Karnataka',
       7 => 'Delhi',
       19 => 'West Bengal',
@@ -126,6 +126,10 @@ class Constants
       31 => 'Lakshadweep',
       34 => 'Puducherry',
       36 => 'Telangana',      
+    );
+
+    public static $LOCATION_COUNTRIES = array(
+      99 => 'India',
     );
 
     public static $PAYMENT_METHODS_RC = array(

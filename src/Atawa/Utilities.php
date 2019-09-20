@@ -541,7 +541,7 @@ class Utilities
         '/taxes/add', '/taxes/update', '/taxes/list', '/sales-summary-by-month', '/stock-report',
         '/stock-report-new', '/adj-entries',
         '/adj-entries', '/io-analysis', '/inventory-profitability', '/mom-comparison',
-        '/admin-options/edit-business-info',        
+        '/admin-options/edit-business-info',
       ],
       6 => [
       ],
@@ -620,4 +620,15 @@ class Utilities
     $environment = $_SERVER['appEnvironment'];
     return Config::get_logout_urls($bc, $environment);
   }
+
+  public static function is_session_started() {
+    if (php_sapi_name()!=='cli') {
+      if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+        return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+      } else {
+        return session_id() === '' ? FALSE : TRUE;
+      }
+    }
+    return FALSE;
+  }  
 }

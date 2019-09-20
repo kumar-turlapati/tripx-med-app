@@ -7,7 +7,7 @@
 
   $current_date = date("d-m-Y");
   
-  $query_params = '';  
+  $query_params = [];  
   if(isset($search_params['adjDate']) && $search_params['adjDate'] !='') {
     $adjDate = $search_params['adjDate'];
     $query_params[] = 'adjDate='.$adjDate;

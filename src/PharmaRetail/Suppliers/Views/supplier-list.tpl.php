@@ -4,7 +4,7 @@
   if(isset($template_vars) && is_array($template_vars)) {
     extract($template_vars); 
   }
-  $query_params = '';  
+  $query_params = [];  
   if(isset($search_params['suppName']) && $search_params['suppName'] !='') {
     $suppName = $search_params['suppName'];
     $query_params[] = 'suppName='.$suppName;
@@ -107,14 +107,11 @@
                     <td>
                       <div class="btn-actions-group">
                         <?php if($supplier_code !== ''): ?>
-                          <a class="btn btn-primary" href="/fin/supplier-ledger?suppCode=<?php echo $supplier_code ?>" title="View Ledger">
+                          <a class="btn btn-primary" href="/fin/supplier-ledger?suppCode=<?php echo $supplier_code ?>" title="View Supplier Ledger">
                             <i class="fa fa-eye"></i>
                           </a>
                           <a class="btn btn-primary" href="/suppliers/update/<?php echo $supplier_code ?>" title="Edit Supplier">
                             <i class="fa fa-pencil"></i>
-                          </a>
-                          <a class="btn btn-danger delSupplier" href="javascrip:void(0)" title="Remove Supplier" sid="<?php echo $supplier_code ?>">
-                            <i class="fa fa-times"></i>
                           </a>                          
                         <?php endif; ?>
                       </div>

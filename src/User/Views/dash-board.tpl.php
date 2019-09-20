@@ -52,9 +52,13 @@
                     <td align="right"><b><span id="ds-totals"></span></b></td>
                   </tr>
                   <tr>
-                    <td ><b>Sales Return</b></td>
-                    <td align="right"><b><span id="ds-returns"></span></b></td>
+                    <td ><b>Cash/Card Sales Returns</b></td>
+                    <td align="right"><b><span id="ds-cash-returns"></span></b></td>
                   </tr>
+                  <tr>
+                    <td ><b>Credit Sales Returns</b></td>
+                    <td align="right"><b><span id="ds-credit-returns"></span></b></td>
+                  </tr>                  
                   <tr>
                     <td ><b>Net Sales</b></td>
                     <td align="right"><b><span id="ds-netsale"></span></b></td>
@@ -92,9 +96,13 @@
                       <td align="right"><b><span id="cs-totals"></span></b></td>
                     </tr>
                     <tr>
-                      <td ><b>Sales Return</b></td>
-                      <td align="right"><b><span id="cs-returns"></span></b></td>
+                      <td ><b>Credit Sales Return</b></td>
+                      <td align="right"><b><span id="cs-returns-credit"></span></b></td>
                     </tr>
+                    <tr>
+                      <td ><b>Cash/Card Sales Return</b></td>
+                      <td align="right"><b><span id="cs-returns-cash"></span></b></td>
+                    </tr>                    
                     <tr>
                       <td ><b>Net Sales</b></td>
                       <td align="right"><b><span id="cs-netsale" style="text-decoration:underline;"></span></b></td>

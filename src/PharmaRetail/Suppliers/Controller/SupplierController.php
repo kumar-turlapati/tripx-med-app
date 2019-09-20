@@ -10,248 +10,224 @@ use Atawa\Template;
 
 use PharmaRetail\Suppliers\Model\Supplier;
 
-class SupplierController
-{
-	protected $views_path;
+class SupplierController {
 
-	public function __construct() 
-    {
-		$this->views_path = __DIR__.'/../Views/';
-	}
+  protected $supp_model, $template;
+  public function __construct() {
+    $this->template = new Template(__DIR__.'/../Views/');
+    $this->supp_model = new Supplier;
+  }
 
-    public function supplierCreateAction(Request $request)
-    {
-        $errors = array();
-        $page_error = $page_success = '';
-        $update_flag=false;
-        $submitted_data = $supplier_details=array();
-        
-        # initiate supplier model.
-        $suppliers = new Supplier;
-        $show_be = Utilities::show_batchno_expiry();
+  // create or update supplier
+  public function supplierCreateAction(Request $request) {
+    $submitted_data = $supplier_details = $errors = [];
+    $page_error = $page_success = '';
+    $update_flag = false;
+    $states_a = Constants::$LOCATION_STATES;
+    $countries_a = Constants::$LOCATION_COUNTRIES;
 
-        if($request->get('supplierCode') && $request->get('supplierCode')!='') {
-            $supplier_code = Utilities::clean_string($request->get('supplierCode'));
-            $supplier_response = $suppliers->get_supplier_details($supplier_code);
-            if($supplier_response['status']===true) {
-                $supplier_details = $supplier_response['supplierDetails'];
-                $update_flag = true;
-            }
-            $page_title = 'Update Supplier '.(isset($supplier_details['supplierName'])?' - '.$supplier_details['supplierName']:'');
-            $btn_label = 'Update Supplier';
-        } else {
-            $supplier_code = '';
-            $btn_label = 'Create Supplier';
-            $page_title = 'Suppliers';
-        }
+    asort($states_a);
 
-        if(count($request->request->all()) > 0) {
-            $submitted_data = $request->request->all();
-            if(count($supplier_details)>0) {
-                $new_supplier = $suppliers->updateSupplier($request->request->all(), $supplier_code);             
-            } else {
-                $new_supplier = $suppliers->createSupplier($request->request->all());
-            }
-
-            $status = $new_supplier['status'];
-            if($status === false) {
-                if(isset($new_supplier['errors'])) {
-                    $errors     =   $new_supplier['errors'];
-                } elseif(isset($new_supplier['apierror'])) {
-                    $page_error =   $new_supplier['apierror'];
-                }
-            } elseif($update_flag===false) {
-                $page_success   = 'Supplier information added successfully with code ['.$new_supplier['supplierCode'].']';
-                $submitted_data = array();
-            } else {
-                $page_success   = 'Supplier information updated successfully';
-            }
-        } elseif(count($supplier_details)>0) {
-            $submitted_data = $supplier_details;
-        }
-
-        // prepare form variables.
-        $template_vars = array(
-            'page_error' => $page_error,
-            'page_success' => $page_success,
-            'supplier_categories' => Constants::$SUPPLIER_TYPES,
-            'status' =>  Constants::$RECORD_STATUS,
-            'submitted_data' => $submitted_data,
-            'errors' => $errors,
-            'btn_label' => $btn_label,
-            'supplier_code' => $supplier_code,
-            'show_be' => $show_be,            
-        );
-
-        // build variables
-        $controller_vars = array(
-            'page_title' => $page_title,
-            'icon_name' => 'fa fa-users'
-        );
-
-        // render template
-        $template = new Template($this->views_path);
-        if($show_be) {
-          return array($template->render_view('supplier-create', $template_vars), $controller_vars);
-        } else {
-          return array($template->render_view('supplier-create-oc', $template_vars), $controller_vars);
-        }
+    $client_details = Utilities::get_client_details();
+    $client_business_state = $client_details['locState'];
+    if( !is_null($request->get('supplierCode')) ) {
+      $supplier_code = Utilities::clean_string($request->get('supplierCode'));
+      $supplier_response = $this->supp_model->get_supplier_details($supplier_code);
+      if($supplier_response['status']) {
+        $supplier_details = $supplier_response['supplierDetails'];
+        $update_flag = true;
+      }
+      $page_title = 'Update Supplier '.(isset($supplier_details['supplierName']) ? ' - '.$supplier_details['supplierName'] : '');
+      $btn_label = 'Update Supplier';
+    } else {
+      $supplier_code = '';
+      $btn_label = 'Create Supplier';
+      $page_title = 'Suppliers';
     }
 
-    public function supplierRemoveAction(Request $request)
-    {
-        if($request->get('supplierCode') && $request->get('supplierCode')!='') {
-            $supplier_code = Utilities::clean_string($request->get('supplierCode'));
-        } else {
-            Utilities::set_flash_message("Invalid Supplier Code",1);
-            Utilities::redirect('/suppliers/list');
-        }
+    if(count($request->request->all()) > 0) {
+      $submitted_data = $request->request->all();
+      if(count($supplier_details)>0) {
+        $new_supplier = $this->supp_model->updateSupplier($request->request->all(), $supplier_code);             
+      } else {
+        $new_supplier = $this->supp_model->createSupplier($request->request->all());
+      }
 
-        # initiate supplier model.
-        $suppliers = new Supplier;            
-        
-        $supplier_response = $suppliers->get_supplier_details($supplier_code);
-        if($supplier_response['status']===true) {
-            $supplier_details = $supplier_response['supplierDetails'];
-        } else {
-            Utilities::set_flash_message("Invalid Supplier Code",1);
-            Utilities::redirect('/suppliers/list');                
+      $status = $new_supplier['status'];
+      if($status === false) {
+        if(isset($new_supplier['errors'])) {
+          $errors     =   $new_supplier['errors'];
+        } elseif(isset($new_supplier['apierror'])) {
+          $page_error =   $new_supplier['apierror'];
         }
-
-        $remove_response = $suppliers->removeSupplier($supplier_code);
-        if($remove_response['status']===true) {
-            $flash_message = "Supplier '$supplier_details[supplierName]' removed successfully";
-            Utilities::set_flash_message($flash_message);            
-        } else {
-            $flash_message = "Unable to remove Supplier";
-            Utilities::set_flash_message($flash_message,1);
-        }
-        
-        Utilities::redirect('/suppliers/list');
+      } elseif($update_flag===false) {
+        $page_success   = 'Supplier information added successfully with code ['.$new_supplier['supplierCode'].']';
+        $submitted_data = array();
+      } else {
+        $page_success   = 'Supplier information updated successfully';
+      }
+    } elseif(count($supplier_details)>0) {
+      $submitted_data = $supplier_details;
     }
 
-    public function supplierViewAction(Request $request)
-    {
+    // prepare form variables.
+    $template_vars = array(
+      'page_error' => $page_error,
+      'page_success' => $page_success,
+      'supplier_categories' => Constants::$SUPPLIER_TYPES,
+      'status' =>  Constants::$RECORD_STATUS,
+      'submitted_data' => $submitted_data,
+      'errors' => $errors,
+      'btn_label' => $btn_label,
+      'supplier_code' => $supplier_code,
+      'states' => [0 => 'Choose'] + $states_a ,
+      'countries' => [ 0 => 'Choose'] + $countries_a,
+      'client_business_state' => $client_business_state,
+    );
 
-        $template_vars = $controller_vars = array();
+    // build variables
+    $controller_vars = array(
+      'page_title' => $page_title,
+      'icon_name' => 'fa fa-users'
+    );
 
-        // build variables
-        $controller_vars = array(
-            'page_title' => 'View Supplier',
-            'render' => false,
-        );        
+    // render template
+    return array($this->template->render_view('supplier-create', $template_vars), $controller_vars);
+  }
 
-        // render template
-        $template = new Template($this->views_path);
-        return array($template->render_view('supplier-view', $template_vars), $controller_vars);        
+  // suppliers list
+  public function suppliersListAction(Request $request) {
+
+    $suppliers_list = $suppliers= $search_params = [];
+    $categories = array(''=>'Choose');
+    $total_pages = $total_records = $record_count = $page_no = 0 ;
+    $slno = $to_sl_no = $page_links_to_start =  $page_links_to_end = 0;
+    $page_success = $page_error = '';
+    $search_params = array('pagination'=>'yes');
+
+    $page_no = is_null($request->get('pageNo')) ? 1 : $request->get('pageNo');
+    $per_page = is_null($request->get('perPage')) ? 100 : $request->get('perPage');
+
+    if(count($request->request->all()) > 0) {
+      if($request->get('suppName')) {
+        $search_params['suppName'] = $request->get('suppName');
+      }
+      if($request->get('category')) {
+        $search_params['category'] =  $request->get('category');
+      }
     }
 
-    public function suppliersListAction(Request $request)
-    {
+      // dump($search_params);
 
-        $suppliers_list = $suppliers= $search_params = array();
-        $categories = array(''=>'Choose');
-        $total_pages = $total_records = $record_count = $page_no = 0 ;
-        $slno = $to_sl_no = $page_links_to_start =  $page_links_to_end = 0;
-        $page_success = $page_error = '';
-        $search_params = array('pagination'=>'yes');
-        $show_be = Utilities::show_batchno_expiry();        
+    $suppliers_list = $this->supp_model->get_suppliers($page_no, $per_page, $search_params);
+    $api_status = $suppliers_list['status'];
 
-        $supplier_api_call = new Supplier;
-        if( $request->get('pageNo') ) {
-            $page_no = $request->get('pageNo');
+    # check api status
+    if($api_status) {
+      # check whether we got products or not.
+      if(count($suppliers_list['suppliers']) >0) {
+        $slno = Utilities::get_slno_start(count($suppliers_list['suppliers']), $per_page, $page_no);
+        $to_sl_no = $slno+$per_page;
+        $slno++;
+
+        if($page_no<=3) {
+          $page_links_to_start = 1;
+          $page_links_to_end = 10;
         } else {
-            $page_no = 1;
+          $page_links_to_start = $page_no-3;
+          $page_links_to_end = $page_links_to_start+10;
         }
 
-        if( $request->get('perPage') ) {
-            $per_page = $request->get('perPage');
-        } else {
-            $per_page = 100;
+        if($suppliers_list['total_pages']<$page_links_to_end) {
+          $page_links_to_end = $suppliers_list['total_pages'];
         }
-
-        if(count($request->request->all()) > 0) {
-            if($request->get('suppName')) {
-                $search_params['suppName'] = $request->get('suppName');
-            }
-            if($request->get('category')) {
-                $search_params['category'] =  $request->get('category');
-            }
+        if($suppliers_list['record_count'] < $per_page) {
+          $to_sl_no = ($slno+$suppliers_list['record_count'])-1;
         }
+        $suppliers = $suppliers_list['suppliers'];
+        $total_pages = $suppliers_list['total_pages'];
+        $total_records = $suppliers_list['total_records'];
+        $record_count = $suppliers_list['record_count'];
+      } else {
+        $page_error = $suppliers_list['apierror'];
+      }
+    } else {
+      $page_error = $suppliers_list['apierror'];
+    }               
 
-        // dump($search_params);
+     // prepare form variables.
+    $template_vars = array(
+      'page_error' => $page_error,
+      'page_success' => $page_success,
+      'categories' => Constants::$SUPPLIER_TYPES,
+      'suppliers' => $suppliers,
+      'total_pages' => $total_pages ,
+      'total_records' => $total_records,
+      'record_count' =>  $record_count,
+      'sl_no' => $slno,
+      'to_sl_no' => $to_sl_no,
+      'search_params' => $search_params,            
+      'page_links_to_start' => $page_links_to_start,
+      'page_links_to_end' => $page_links_to_end,
+      'current_page' => $page_no,
+    );
 
-        $suppliers_list = $supplier_api_call->get_suppliers($page_no, $per_page, $search_params);
-        $api_status = $suppliers_list['status'];
+    // build variables
+    $controller_vars = array(
+      'page_title' => 'Suppliers',
+      'icon_name' => 'fa fa-users'
+    );
 
-        # check api status
-        if($api_status) {
+    // render template
+    return array($this->template->render_view('supplier-list', $template_vars), $controller_vars);       
+  }
 
-            # check whether we got products or not.
-            if(count($suppliers_list['suppliers']) >0) {
-                $slno = Utilities::get_slno_start(count($suppliers_list['suppliers']), $per_page, $page_no);
-                $to_sl_no = $slno+$per_page;
-                $slno++;
+  public function supplierRemoveAction(Request $request)
+  {
+      if($request->get('supplierCode') && $request->get('supplierCode')!='') {
+          $supplier_code = Utilities::clean_string($request->get('supplierCode'));
+      } else {
+          Utilities::set_flash_message("Invalid Supplier Code",1);
+          Utilities::redirect('/suppliers/list');
+      }
 
-                if($page_no<=3) {
-                    $page_links_to_start = 1;
-                    $page_links_to_end = 10;
-                } else {
-                    $page_links_to_start = $page_no-3;
-                    $page_links_to_end = $page_links_to_start+10;            
-                }
+      # initiate supplier model.
+      $suppliers = new Supplier;            
+      
+      $supplier_response = $this->supp_model->get_supplier_details($supplier_code);
+      if($supplier_response['status']===true) {
+          $supplier_details = $supplier_response['supplierDetails'];
+      } else {
+          Utilities::set_flash_message("Invalid Supplier Code",1);
+          Utilities::redirect('/suppliers/list');                
+      }
 
-                if($suppliers_list['total_pages']<$page_links_to_end) {
-                    $page_links_to_end = $suppliers_list['total_pages'];
-                }
+      $remove_response = $this->supp_model->removeSupplier($supplier_code);
+      if($remove_response['status']===true) {
+          $flash_message = "Supplier '$supplier_details[supplierName]' removed successfully";
+          Utilities::set_flash_message($flash_message);            
+      } else {
+          $flash_message = "Unable to remove Supplier";
+          Utilities::set_flash_message($flash_message,1);
+      }
+      
+      Utilities::redirect('/suppliers/list');
+  }
 
-                if($suppliers_list['record_count'] < $per_page) {
-                    $to_sl_no = ($slno+$suppliers_list['record_count'])-1;
-                }
+  public function supplierViewAction(Request $request)
+  {
 
-                $suppliers = $suppliers_list['suppliers'];
-                $total_pages = $suppliers_list['total_pages'];
-                $total_records = $suppliers_list['total_records'];
-                $record_count = $suppliers_list['record_count'];
-            } else {
-                $page_error = $suppliers_list['apierror'];
-            }
+      $template_vars = $controller_vars = array();
 
-        } else {
-            $page_error = $suppliers_list['apierror'];
-        }               
+      // build variables
+      $controller_vars = array(
+          'page_title' => 'View Supplier',
+          'render' => false,
+      );        
 
-         // prepare form variables.
-        $template_vars = array(
-            'page_error' => $page_error,
-            'page_success' => $page_success,
-            'categories' => Constants::$SUPPLIER_TYPES,
-            'suppliers' => $suppliers,
-            'total_pages' => $total_pages ,
-            'total_records' => $total_records,
-            'record_count' =>  $record_count,
-            'sl_no' => $slno,
-            'to_sl_no' => $to_sl_no,
-            'search_params' => $search_params,            
-            'page_links_to_start' => $page_links_to_start,
-            'page_links_to_end' => $page_links_to_end,
-            'current_page' => $page_no,
-            'show_be' => $show_be,           
-        );
-
-        // build variables
-        $controller_vars = array(
-            'page_title' => 'Suppliers',
-            'icon_name' => 'fa fa-users'
-        );
-
-        // render template
-        $template = new Template($this->views_path);
-        if($show_be) {
-          return array($template->render_view('supplier-list', $template_vars), $controller_vars);       
-        } else {
-          return array($template->render_view('supplier-list-oc', $template_vars), $controller_vars);            
-        }
-    }
+      // render template
+      $template = new Template($this->views_path);
+      return array($template->render_view('supplier-view', $template_vars), $controller_vars);        
+  }  
 
 }

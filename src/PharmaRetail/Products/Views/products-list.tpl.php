@@ -2,7 +2,7 @@
 
   $pagination_url = '/medicines/list';
 
-  $query_params = '';  
+  $query_params = [];  
   if(isset($search_params['medname']) && $search_params['medname'] !='') {
     $medname = $search_params['medname'];
     $query_params[] = 'medName='.$medname;

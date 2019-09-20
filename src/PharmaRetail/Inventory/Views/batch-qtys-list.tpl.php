@@ -5,7 +5,7 @@
     extract($template_vars); 
   }
   
-  $query_params = '';  
+  $query_params = [];  
   if(isset($search_params['medName']) && $search_params['medName'] !='') {
     $medName = $search_params['medName'];
     $query_params[] = 'medName='.$medName;

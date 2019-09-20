@@ -131,7 +131,7 @@ class ReportsSalesController
         $month = $request->get('month');
         $year = $request->get('year');
 
-        $item_widths = array(20,25,21,22,25,25,25,23,25,23,23,21);
+        $item_widths = array(20,22,19,19,21,21,21,21,23,23,23,21);
         $totals_width = $item_widths[0]+$item_widths[1];
         $slno=0;       
 
@@ -144,6 +144,10 @@ class ReportsSalesController
         );
 
         $sales_response = $sales_api->get_sales_summary_bymon($search_params);
+        // dump($sales_response);
+        // exit;
+
+
         if($sales_response['status']===false) {
             die("<h1>No data is available. Change Report Filters and Try again</h1>");
         } else {
@@ -170,26 +174,27 @@ class ReportsSalesController
         $pdf->Ln(5);
         $pdf->Cell($item_widths[0],6,'Date','LRTB',0,'C');
         $pdf->Cell($item_widths[1],6,'Cash Sales','RTB',0,'C');
-        $pdf->Cell(118,6,'Credit Sales','RTB',0,'C');
-        $pdf->Cell($item_widths[7],6,'Card Sales','RTB',0,'C');
+        $pdf->Cell(101,6,'Credit Sales','RTB',0,'C');
+        $pdf->Cell($item_widths[7],6,'Card Sales','RT',0,'C');
         $pdf->Cell($item_widths[8],6,'Total Sales','RT',0,'C');  
  
-        $pdf->Cell($item_widths[9],6,'Sales Return','RTB',0,'C');
+        $pdf->Cell($item_widths[9]*2,6,'Sales Return','RTB',0,'C');
         $pdf->Cell($item_widths[10],6,'Cash in Hand','RTB',0,'C');
         $pdf->Cell($item_widths[11],6,'Discount**','RTB',0,'C');
         $pdf->SetFont('Arial','',9);
 
         $pdf->SetFont('Arial','B',9);
         $pdf->Ln();
-        $pdf->Cell(45,6,'','LR',0,'C');
+        $pdf->Cell(42,6,'','LR',0,'C');
         $pdf->Cell($item_widths[2],6,'Pkg. Sales','RTB',0,'C');
         $pdf->Cell($item_widths[3],6,'Int. Sales','RTB',0,'C');
         $pdf->Cell($item_widths[4],6,'Asri Sales','RTB',0,'C');        
         $pdf->Cell($item_widths[5],6,'Ins. Sales','RTB',0,'C');
         $pdf->Cell($item_widths[6],6,'Tot Cr.Sales','RTB',0,'C');        
-        $pdf->Cell($item_widths[7],6,'','RTB',0,'C');
+        $pdf->Cell($item_widths[7],6,'','RB',0,'C');
         $pdf->Cell($item_widths[8],6,'after disc.','RB',0,'C');
-        $pdf->Cell($item_widths[9],6,'','RTB',0,'C');
+        $pdf->Cell($item_widths[9],6,'Cash/Card','RTB',0,'C');
+        $pdf->Cell($item_widths[9],6,'Credit','RTB',0,'C');
         $pdf->Cell($item_widths[10],6,'','RTB',0,'C');  
         $pdf->Cell($item_widths[11],6,'','RTB',0,'C');
         $pdf->SetFont('Arial','',9);        
@@ -197,14 +202,13 @@ class ReportsSalesController
         $tot_cash_sales = $tot_credit_sales = $tot_card_sales = $tot_returns = $tot_discounts = 0;
         $tot_pkg_sales = $tot_self_sales = $tot_asri_sales = $tot_ins_sales = 0;
         $tot_cash_in_hand = 0;
+        $tot_cash_returns = $tot_credit_returns = 0;
         foreach($sales_summary as $day_details) {
 
             $date = date("d-m-Y", strtotime($day_details['tranDate']));
             $week = date("l", strtotime($day_details['tranDate']));
             $day_sales = $day_details['cashSales']+$day_details['creditSales']+$day_details['cardSales'];
             $discount_bills = $day_details['totalDiscountBills'];
-
-            // -$day_details['returnamount']        
 
             $tot_cash_sales += $day_details['cashSales'];
             $tot_credit_sales += $day_details['creditSales'];
@@ -217,60 +221,69 @@ class ReportsSalesController
             $tot_ins_sales += $day_details['insuranceSales'];
             $tot_asri_sales += $day_details['asriSales'];
 
-            $cash_in_hand = $day_details['cashSales']-$day_details['returnamount'];
+            $tot_cash_returns += $day_details['cashCardReturnAmount'];
+            $tot_credit_returns += $day_details['creditReturnAmount'];
+
+            $cash_in_hand = $day_details['cashSales']-$day_details['cashCardReturnAmount'];
 
             $tot_cash_in_hand += $cash_in_hand;
 
             if($day_details['discountGiven']>0) {
-                $discount_string = number_format($day_details['discountGiven'],2).' ('.$discount_bills.')';
+                $discount_string = number_format($day_details['discountGiven'],2,'.','').' ('.$discount_bills.')';
             } else {
                 $discount_string = '';
             }
 
             if($day_details['cashSales']>0) {
-                $cash_sales = number_format($day_details['cashSales'],2);
+                $cash_sales = number_format($day_details['cashSales'],2,'.','');
             } else {
                 $cash_sales = '';
             }
 
             if($day_details['creditSales']>0) {
-                $credit_sales = number_format($day_details['creditSales'],2);
+                $credit_sales = number_format($day_details['creditSales'],2,'.','');
             } else {
                 $credit_sales = '';
             }
 
             if($day_details['cardSales']>0) {
-                $card_sales = number_format($day_details['cardSales'],2);
+                $card_sales = number_format($day_details['cardSales'],2,'.','');
             } else {
                 $card_sales = '';
             }
 
-            if($day_details['returnamount']>0) {
-                $returns = number_format($day_details['returnamount'],2);
+            if($day_details['cashCardReturnAmount']>0) {
+                $cash_returns = number_format($day_details['cashCardReturnAmount'],2,'.','');
             } else {
-                $returns = '';
+                $cash_returns = '';
             }
 
+            if($day_details['creditReturnAmount']>0) {
+                $credit_returns = number_format($day_details['creditReturnAmount'],2,'.','');
+            } else {
+                $credit_returns = '';
+            }            
+
             if($day_details['packageSales']>0) {
-                $pkg_sales = number_format($day_details['packageSales'],2);
+                $pkg_sales = number_format($day_details['packageSales'],2,'.','');
             } else {
                 $pkg_sales = '';
             }                      
 
             if($day_details['selfSales']>0) {
-                $self_sales = number_format($day_details['selfSales'],2);
+                $self_sales = number_format($day_details['selfSales'],2,'.','');
             } else {
                 $self_sales = '';
             }                                  
 
             if($day_details['asriSales']>0) {
-                $asri_sales = number_format($day_details['asriSales'],2);
+                $asri_sales = number_format($day_details['asriSales'],2,'.','');
             } else {
                 $asri_sales = '';
             }                                  
 
             if($day_details['insuranceSales']>0) {
-                $ins_sales = number_format($day_details['insuranceSales'],2);
+                $ins_sales = number_format($day_details['insuranceSales'],2,'.','');
             } else {
                 $ins_sales = '';
             }                                              
@@ -288,12 +301,13 @@ class ReportsSalesController
             $pdf->Cell($item_widths[7],6,$card_sales,'RTB',0,'R');
 
             $pdf->SetFont('Arial','IB',10);          
-            $pdf->Cell($item_widths[8],6,number_format($day_sales,2),'RTB',0,'R');
+            $pdf->Cell($item_widths[8],6,number_format($day_sales,2,'.',''),'RTB',0,'R');
             $pdf->SetFont('Arial','',9);          
 
-            $pdf->Cell($item_widths[9],6,$returns,'RTB',0,'R');
+            $pdf->Cell($item_widths[9],6,$cash_returns,'RTB',0,'R');
+            $pdf->Cell($item_widths[9],6,$credit_returns,'RTB',0,'R');
             $pdf->SetFont('Arial','B',9);          
-            $pdf->Cell($item_widths[10],6,number_format($cash_in_hand,2),'RTB',0,'R');
+            $pdf->Cell($item_widths[10],6,number_format($cash_in_hand,2,'.',''),'RTB',0,'R');
             $pdf->SetFont('Arial','',9);            
             $pdf->Cell($item_widths[11],6,$discount_string,'RTB',0,'R');
         }
@@ -302,21 +316,22 @@ class ReportsSalesController
         // -$tot_returns;
 
         $pdf->Ln();
-        $pdf->SetFont('Arial','B',11);
+        $pdf->SetFont('Arial','B',10);
         $pdf->Cell($item_widths[0],6,'TOTALS','LRTB',0,'R');
-        $pdf->Cell($item_widths[1],6,number_format($tot_cash_sales,2),'LRTB',0,'R');
+        $pdf->Cell($item_widths[1],6,number_format($tot_cash_sales,2,'.',''),'LRTB',0,'R');
         $pdf->SetFont('Arial','',10);        
-        $pdf->Cell($item_widths[2],6,number_format($tot_pkg_sales,2),'RTB',0,'R');        
-        $pdf->Cell($item_widths[3],6,number_format($tot_self_sales,2),'RTB',0,'R');        
-        $pdf->Cell($item_widths[4],6,number_format($tot_asri_sales,2),'RTB',0,'R');        
-        $pdf->Cell($item_widths[5],6,number_format($tot_ins_sales,2),'RTB',0,'R');
-        $pdf->SetFont('Arial','B',11);        
-        $pdf->Cell($item_widths[6],6,number_format($tot_credit_sales,2),'RTB',0,'R');        
-        $pdf->Cell($item_widths[7],6,number_format($tot_card_sales,2),'RTB',0,'R');                
-        $pdf->Cell($item_widths[8],6,number_format($tot_sales,2),'RTB',0,'R');        
-        $pdf->Cell($item_widths[9],6,number_format($tot_returns,2),'RTB',0,'R');
-        $pdf->Cell($item_widths[10],6,number_format($tot_cash_in_hand,2),'RTB',0,'R');        
-        $pdf->Cell($item_widths[11],6,number_format($tot_discounts,2),'RTB',1,'R');
+        $pdf->Cell($item_widths[2],6,number_format($tot_pkg_sales,2,'.',''),'RTB',0,'R');        
+        $pdf->Cell($item_widths[3],6,number_format($tot_self_sales,2,'.',''),'RTB',0,'R');        
+        $pdf->Cell($item_widths[4],6,number_format($tot_asri_sales,2,'.',''),'RTB',0,'R');        
+        $pdf->Cell($item_widths[5],6,number_format($tot_ins_sales,2,'.',''),'RTB',0,'R');
+        $pdf->SetFont('Arial','B',10);        
+        $pdf->Cell($item_widths[6],6,number_format($tot_credit_sales,2,'.',''),'RTB',0,'R');        
+        $pdf->Cell($item_widths[7],6,number_format($tot_card_sales,2,'.',''),'RTB',0,'R');                
+        $pdf->Cell($item_widths[8],6,number_format($tot_sales,2,'.',''),'RTB',0,'R');        
+        $pdf->Cell($item_widths[9],6,number_format($tot_cash_returns,2,'.',''),'RTB',0,'R');
+        $pdf->Cell($item_widths[9],6,number_format($tot_credit_returns,2,'.',''),'RTB',0,'R');
+        $pdf->Cell($item_widths[10],6,number_format($tot_cash_in_hand,2,'.',''),'RTB',0,'R');        
+        $pdf->Cell($item_widths[11],6,number_format($tot_discounts,2,'.',''),'RTB',1,'R');
         $pdf->Ln();
         $pdf->SetFont('Arial','',10); 
         $pdf->Cell(array_sum($item_widths),6,$discount_label,'',0,'L');
@@ -347,6 +362,8 @@ class ReportsSalesController
             $card_sales = $sales_summary[0]['cardSales'];
             $credit_sales = $sales_summary[0]['creditSales'];
             $sales_return = $sales_summary[0]['returnamount'];
+            $sales_return_credit = $sales_summary[0]['creditReturnAmount'];
+            $sales_return_cash = $sales_summary[0]['cashCardReturnAmount'];
             $day_sales = $cash_sales+$credit_sales+$card_sales;
             $total_sales = $day_sales-$sales_return;
 
@@ -391,8 +408,22 @@ class ReportsSalesController
         $pdf->Ln();
         $pdf->SetFont('Arial','');          
         $pdf->Cell($item_widths[0],6,'d)','LRTB',0,'C');
-        $pdf->Cell($item_widths[1],6,'Sales Return (-)','LRTB',0,'L');
-        $pdf->Cell($item_widths[2],6,number_format($sales_return,2),'RTB',0,'R');
+        $pdf->Cell($item_widths[1],6,'Sales Return','LRTB',0,'L');
+        $pdf->Cell($item_widths[2],6,'','RTB',0,'R');
+
+        $pdf->Ln();
+        $pdf->SetFont('Arial','',9);
+        $pdf->Cell($item_widths[0],6,'   d1)','LRTB',0,'C');
+        $pdf->SetFont('Arial','',13);
+        $pdf->Cell($item_widths[1],6,'   SR - Cash/Card','LRTB',0,'L');
+        $pdf->Cell($item_widths[2],6,number_format($sales_return_cash,2),'RTB',0,'R');        
+
+        $pdf->Ln();
+        $pdf->SetFont('Arial','',9);
+        $pdf->Cell($item_widths[0],6,'   d2)','LRTB',0,'C');
+        $pdf->SetFont('Arial','',13);
+        $pdf->Cell($item_widths[1],6,'   SR - Credit','LRTB',0,'L');
+        $pdf->Cell($item_widths[2],6,number_format($sales_return_credit,2),'RTB',0,'R');
 
         $pdf->Ln();
         $pdf->SetFont('Arial','B');              
@@ -401,10 +432,11 @@ class ReportsSalesController
         $pdf->Cell($item_widths[2],6,number_format($total_sales,2),'RTB',0,'R');
 
         $pdf->Ln();
-        $pdf->SetFont('Arial','B');              
+        $pdf->SetFont('Arial','B',10);
         $pdf->Cell($item_widths[0],6,'','LRTB',0,'C');                     
-        $pdf->Cell($item_widths[1],6,'Cash in hand (a)-(d)','RTB',0,'R');
-        $pdf->Cell($item_widths[2],6,number_format($cash_sales-$sales_return,2),'RTB',0,'R');        
+        $pdf->Cell($item_widths[1],6,'Cash in hand (a)-(d1)','RTB',0,'R');
+        $pdf->SetFont('Arial','',13);
+        $pdf->Cell($item_widths[2],6,number_format($cash_sales-$sales_return_cash,2),'RTB',0,'R');        
 
         $pdf->Output();
   }

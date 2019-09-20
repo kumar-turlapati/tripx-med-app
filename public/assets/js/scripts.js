@@ -428,6 +428,10 @@ function initializeJS() {
         }            
     });
 
+    jQuery('input[name=discount]').on("change", function(e){
+      updateSaleBillTotals();
+    });    
+
     jQuery('#poNoGrn').on("blur", function(){
         var poNo = $(this).val();
         if(poNo !== '') {
@@ -496,18 +500,48 @@ function initializeJS() {
     });
 
     function updateItemTotals(index, qty, rate) {
-        var netPay = iTotal = billAmount = totalAmount = roundOff = 0;
-        var elemId = jQuery('#itemtotal_'+index);
-        var itemTotal = (parseFloat(qty)*parseFloat(rate)).toFixed(2);
-        var discount = 0;
+      var netPay = iTotal = billAmount = totalAmount = roundOff = 0;
+      var elemId = jQuery('#itemtotal_'+index);
+      var itemTotal = (parseFloat(qty)*parseFloat(rate)).toFixed(2);
+      var discount = 0;
 
-        jQuery(elemId).text(itemTotal);
+      jQuery(elemId).text(itemTotal);
+      jQuery('.itemTotal').each(function(i, obj) {
+          iTotal = jQuery(this).text();
+          if(parseFloat(iTotal)>0) {
+              billAmount  += parseFloat(iTotal);
+          }
+      });
+
+      totalAmount = billAmount-discount;
+      roundOff = parseFloat(Math.round(totalAmount)-totalAmount);
+      netPay = parseFloat(totalAmount+roundOff);
+
+      billAmount = billAmount.toFixed(2);
+      totalAmount = totalAmount.toFixed(2);
+      roundOff = roundOff.toFixed(2);
+      netPay = netPay.toFixed(2);
+
+      jQuery('.billAmount').text(billAmount);
+      jQuery('.totalAmount').text(totalAmount);
+      jQuery('.roundOff').text(roundOff); 
+      jQuery('.netPay').text(netPay);
+
+      updateSaleBillTotals();
+    }
+
+    function updateSaleBillTotals() {
+      var netPay = iTotal = billAmount = totalAmount = roundOff = 0;
+      var discountPercent = $('input[name=discount]:checked').val();
+      if(discountPercent) {
         jQuery('.itemTotal').each(function(i, obj) {
-            iTotal = jQuery(this).text();
-            if(parseFloat(iTotal)>0) {
-                billAmount  += parseFloat(iTotal);
-            }
+          iTotal = jQuery(this).text();
+          if(parseFloat(iTotal)>0) {
+              billAmount  += parseFloat(iTotal);
+          }
         });
+
+        var discount = ((parseFloat(billAmount)*parseFloat(discountPercent))/100).toFixed(2);
 
         totalAmount = billAmount-discount;
         roundOff = parseFloat(Math.round(totalAmount)-totalAmount);
@@ -520,8 +554,10 @@ function initializeJS() {
 
         jQuery('.billAmount').text(billAmount);
         jQuery('.totalAmount').text(totalAmount);
-        jQuery('.roundOff').text(roundOff); 
-        jQuery('.netPay').text(netPay);
+        jQuery('#discount').text(discount);
+        jQuery('.roundOff').text(roundOff);
+        jQuery('.netPay').text(netPay);      
+      }
     }
 
     function updatePurchaseitemAmount(rowId) {
@@ -741,6 +777,8 @@ function initializeJS() {
               var creditSales = parseInt(daySales.creditSales);
               var cardSales = parseInt(daySales.cardSales);
               var salesReturns = parseInt(daySales.returnamount);
+              var salesReturnsCredit = parseInt(daySales.creditReturnAmount);
+              var salesReturnsCashCard = parseInt(daySales.cashCardReturnAmount);
               var totalSales = parseInt(cashSales+creditSales+cardSales);
               var netSales = parseInt(totalSales-salesReturns);
               var cashInHand = cashSales-salesReturns;
@@ -748,7 +786,9 @@ function initializeJS() {
               $('#ds-cardsale').text(cardSales.toFixed(2));
               $('#ds-creditsale').text(creditSales.toFixed(2));
               $('#ds-totals').text(totalSales.toFixed(2));
-              $('#ds-returns').text(salesReturns.toFixed(2));
+              // $('#ds-returns').text(salesReturns.toFixed(2));
+              $('#ds-cash-returns').text(salesReturnsCredit.toFixed(2));
+              $('#ds-credit-returns').text(salesReturnsCashCard.toFixed(2));
               $('#ds-netsale').text(netSales.toFixed(2));
               $('#ds-cashinhand').text(cashInHand.toFixed(2));                                          
             }
@@ -1165,7 +1205,8 @@ function monthWiseSales() {
   var sgfYear = $('#saleYear').val();
   var saleDate = []
   var saleAmounts = [];
-  var totCashSales = totCreditSales = totCardSales = totSales = totSalesReturns = totNetSales = 0;  
+  var totCashSales = totCreditSales = totCardSales = totSales = totSalesReturns = totNetSales = 0;
+  var totCardReturns = totCashCardReturns = 0; 
   jQuery.ajax("/async/monthly-sales?saleMonth="+sgfMonth+'&saleYear='+sgfYear, {
     method:"GET",
     success: function(apiResponse) {
@@ -1185,6 +1226,8 @@ function monthWiseSales() {
           totCreditSales += parseFloat(saleDetails.creditSales);
           totSales += ( parseFloat(saleDetails.cashSales) + parseFloat(saleDetails.cardSales) + parseFloat(saleDetails.creditSales) );
           totSalesReturns += parseFloat(saleDetails.returnamount);
+          totCardReturns += parseFloat(saleDetails.creditReturnAmount);
+          totCashCardReturns += parseFloat(saleDetails.cashCardReturnAmount);
         });
 
         totNetSales = parseFloat(totSales) - parseFloat(totSalesReturns);
@@ -1193,8 +1236,12 @@ function monthWiseSales() {
         $('#cs-cardsale').text(totCardSales.toFixed(2));
         $('#cs-creditsale').text(totCreditSales.toFixed(2));
         $('#cs-totals').text(totSales.toFixed(2));
-        $('#cs-returns').text(totSalesReturns.toFixed(2));
         $('#cs-netsale').text(totNetSales.toFixed(2));
+        $('#cs-returns').text(totSalesReturns.toFixed(2));
+        $('#cs-returns').text(totSalesReturns.toFixed(2));
+        $('#cs-returns-credit').text(totCardReturns.toFixed(2));
+        $('#cs-returns-cash').text(totCashCardReturns.toFixed(2));
+
         // $('#ds-cashinhand').text(cashInHand.toFixed(2));
       }
 

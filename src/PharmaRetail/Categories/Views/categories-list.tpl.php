@@ -1,6 +1,6 @@
 <?php 
 
-  $query_params = '';  
+  $query_params = [];  
   if(isset($search_params['catname']) && $search_params['catname'] !='') {
     $catname = $search_params['catname'];
     $query_params[] = 'catName='.$catname;

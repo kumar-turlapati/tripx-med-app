@@ -4,7 +4,7 @@
   if(isset($template_vars) && is_array($template_vars)) {
     extract($template_vars); 
   }
-  $query_params = '';  
+  $query_params = [];  
   if(isset($search_params['fromDate']) && $search_params['fromDate'] !='') {
     $fromDate = $search_params['fromDate'];
     $query_params[] = 'fromDate='.$fromDate;

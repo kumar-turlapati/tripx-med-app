@@ -96,13 +96,13 @@
                       <td align="right"><b><span id="cs-totals"></span></b></td>
                     </tr>
                     <tr>
-                      <td ><b>Credit Sales Return</b></td>
-                      <td align="right"><b><span id="cs-returns-credit"></span></b></td>
-                    </tr>
-                    <tr>
                       <td ><b>Cash/Card Sales Return</b></td>
                       <td align="right"><b><span id="cs-returns-cash"></span></b></td>
                     </tr>                    
+                    <tr>
+                      <td ><b>Credit Sales Return</b></td>
+                      <td align="right"><b><span id="cs-returns-credit"></span></b></td>
+                    </tr>
                     <tr>
                       <td ><b>Net Sales</b></td>
                       <td align="right"><b><span id="cs-netsale" style="text-decoration:underline;"></span></b></td>

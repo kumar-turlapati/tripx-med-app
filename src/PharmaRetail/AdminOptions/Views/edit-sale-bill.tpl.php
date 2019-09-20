@@ -48,6 +48,11 @@
     $saleMode = $submitted_data['saleMode'];
   } else {
     $saleMode = 0;
+  }
+  if(isset($submitted_data['discountPercent']) && $submitted_data['discountPercent'] !== '') {
+    $discount_percent = (int)$submitted_data['discountPercent'];
+  } else {
+    $discount_percent = 0;
   }  
 
   // dump($submitted_data);
@@ -325,25 +330,38 @@
             </div>            
           </div>
 
-          <div class="form-group">
-            <div class="col-sm-12 col-md-4 col-lg-4">
-              <label class="control-label">Discount allowed?</label>
-              <div class="row">
-                <div class="col-sm-6">
-                  <div>
-                    <input type="radio" name="discount" value="1" id="discountRadio1" <?php echo ($discount_amount>0?"checked":"") ?>>
-                    <label class="radio radio-inline" for="discountRadio1">Yes</label>
-                  </div>
+          <div class="col-sm-12 col-md-4 col-lg-4">
+            <label class="control-label">Discount percent</label>
+            <div class="row">
+              <div class="col-sm-3">
+                <div>
+                  <input type="radio" name="discount" value="0" id="discountRadio0" <?php echo ($discount_percent === 0 ?"checked" : "") ?>>
+                  <label class="radio radio-inline" for="discountRadio0">0%</label>
                 </div>
-                <div class="col-sm-6">
-                  <div>
-                    <input type="radio" name="discount" value="0" id="discountRadio0" <?php echo ($discount_amount<=0?"checked":"") ?>>
-                    <label class="radio radio-inline" for="discountRadio0">No</label>
-                  </div>
+              </div>                    
+              <div class="col-sm-3">
+                <div>
+                  <input type="radio" name="discount" value="5" id="discountRadio5" <?php echo ($discount_percent === 5 ?"checked" : "") ?>>
+                  <label class="radio radio-inline" for="discountRadio5">5%</label>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div>
+                  <input type="radio" name="discount" value="10" id="discountRadio10" <?php echo ($discount_percent === 10 ?"checked" : "") ?>>
+                  <label class="radio radio-inline" for="discountRadio10">10%</label>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div>
+                  <input type="radio" name="discount" value="15" id="discountRadio15" <?php echo ($discount_percent === 15 ?"checked" : "") ?>>
+                  <label class="radio radio-inline" for="discountRadio15">15%</label>
                 </div>
               </div>
             </div>
           </div>
+
+
+
           </div>
           </div>
           <h2 class="hdg-reports">Item Details</h2>

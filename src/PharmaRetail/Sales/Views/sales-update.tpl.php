@@ -54,6 +54,12 @@
   } else {
     $discount_percent = 0;
   }
+
+  if(isset($_SESSION['utype']) && (int)$_SESSION['utype'] === 3) {
+    $disable_discount = false;
+  } else {
+    $disable_discount = true;
+  }
   // dump($submitted_data);
   // dump($saleType);
   // exit;
@@ -348,6 +354,8 @@
               </div>
             </div>
           </div>*/ ?>
+
+            <?php if(!$disable_discount): ?>
             <div class="col-sm-12 col-md-4 col-lg-4">
               <label class="control-label">Discount percent</label>
               <div class="row">
@@ -377,6 +385,10 @@
                 </div>
               </div>
             </div>
+            <?php else: ?>
+              <input type="hidden" value="<?php echo $discount_percent ?>" name="discount" />
+            <?php endif; ?>
+
           </div>
           </div>
           <h2 class="hdg-reports">Item Details</h2>

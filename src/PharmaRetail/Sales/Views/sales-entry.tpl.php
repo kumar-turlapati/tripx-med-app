@@ -6,7 +6,6 @@
   $flash_obj = new Flash;
 
   /************************************ Extract Form data ***************************/
-
   if( isset($submitted_data['invoiceCode']) ) {
     $bill_amount = $submitted_data['billAmount'];
     $discount_amount = $submitted_data['discountAmount'];
@@ -74,7 +73,12 @@
     $patientRefNumber = '';
     $doctorID = '';
   }
-  /************************************ End of Form data ***************************/
+
+  if(isset($_SESSION['utype']) && (int)$_SESSION['utype'] === 3) {
+    $is_admin = true;
+  } else {
+    $is_admin = false;
+  }
 ?>
 
 <!-- Basic form starts -->
@@ -341,12 +345,14 @@
                         <label class="radio radio-inline" for="discountRadio10">10%</label>
                       </div>
                     </div>
-                    <div class="col-sm-3">
-                      <div>
-                        <input type="radio" name="discount" value="15" id="discountRadio15">
-                        <label class="radio radio-inline" for="discountRadio15">15%</label>
+                    <?php if($is_admin): ?>
+                      <div class="col-sm-3">
+                        <div>
+                          <input type="radio" name="discount" value="15" id="discountRadio15">
+                          <label class="radio radio-inline" for="discountRadio15">15%</label>
+                        </div>
                       </div>
-                    </div>
+                    <?php endif; ?>
                   </div>
                 </div>
 

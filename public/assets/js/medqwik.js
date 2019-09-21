@@ -781,7 +781,7 @@ function initializeJS() {
               var salesReturnsCashCard = parseInt(daySales.cashCardReturnAmount);
               var totalSales = parseInt(cashSales+creditSales+cardSales);
               var netSales = parseInt(totalSales-salesReturns);
-              var cashInHand = cashSales-salesReturns;
+              var cashInHand = cashSales-salesReturnsCashCard;
               $('#ds-cashsale').text(cashSales.toFixed(2));
               $('#ds-cardsale').text(cardSales.toFixed(2));
               $('#ds-creditsale').text(creditSales.toFixed(2));
@@ -1237,7 +1237,6 @@ function monthWiseSales() {
         $('#cs-creditsale').text(totCreditSales.toFixed(2));
         $('#cs-totals').text(totSales.toFixed(2));
         $('#cs-netsale').text(totNetSales.toFixed(2));
-        $('#cs-returns').text(totSalesReturns.toFixed(2));
         $('#cs-returns').text(totSalesReturns.toFixed(2));
         $('#cs-returns-credit').text(totCardReturns.toFixed(2));
         $('#cs-returns-cash').text(totCashCardReturns.toFixed(2));

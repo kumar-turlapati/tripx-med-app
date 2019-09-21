@@ -1,6 +1,6 @@
 <?php 
 if($page_links_to_end>1 && $total_records>0):
-  if(!isset($query_params)) {
+  if(!isset($query_params) || (is_array($query_params) && count($query_params) === 0)) {
     $query_params = '';
   }
   if(!isset($pagination_url)) {

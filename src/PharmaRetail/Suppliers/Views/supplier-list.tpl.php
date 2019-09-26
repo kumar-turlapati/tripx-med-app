@@ -1,9 +1,6 @@
 <?php
   use Atawa\Utilities;
 
-  if(isset($template_vars) && is_array($template_vars)) {
-    extract($template_vars); 
-  }
   $query_params = [];  
   if(isset($search_params['suppName']) && $search_params['suppName'] !='') {
     $suppName = $search_params['suppName'];
@@ -19,8 +16,9 @@
   }
   if(is_array($query_params) && count($query_params)>0) {
     $query_params = '?'.implode('&', $query_params);
+  } else {
+    $query_params = '';
   }
-
   $page_url = '/suppliers/list';
 ?>
 

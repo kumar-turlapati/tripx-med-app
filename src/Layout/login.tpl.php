@@ -46,9 +46,7 @@
           <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
           <div class="input-group login-copyrights">
             <p>Powered by&nbsp;
-              <a href="http://tripexpert.co.in/" target="_blank">
-                <img src="/assets/img/tripexpert-logo.png">
-              </a>
+              <a href="javascript:void(0)">Octet Logic</a>
             </p>
           </div>
         </div>

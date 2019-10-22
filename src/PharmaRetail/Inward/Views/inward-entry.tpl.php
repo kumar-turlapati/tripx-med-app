@@ -295,12 +295,12 @@
                   if( isset($form_data['inwardQty'][$i-1]) && $form_data['inwardQty'][$i-1] !== '' ) {
                     $inward_qty = $form_data['inwardQty'][$i-1];
                   } else {
-                    $inward_qty = '';
+                    $inward_qty = 0;
                   }
                   if( isset($form_data['freeQty'][$i-1]) && $form_data['freeQty'][$i-1] !== '' ) {
                     $free_qty = $form_data['freeQty'][$i-1];
                   } else {
-                    $free_qty = '';
+                    $free_qty = 0;
                   }
                   if( isset($form_data['batchNo'][$i-1]) &&  $form_data['batchNo'][$i-1] !== '' ) {
                     $batch_no = $form_data['batchNo'][$i-1];
@@ -320,7 +320,7 @@
                   if( isset($form_data['itemRate'][$i-1]) && $form_data['itemRate'][$i-1] !== '' ) {
                     $item_rate = $form_data['itemRate'][$i-1];
                   } else {
-                    $item_rate = '';
+                    $item_rate = 0;
                   }
                   if( isset($form_data['taxPercent'][$i-1]) && $form_data['taxPercent'][$i-1] !== '' ) {
                     $tax_percent = $form_data['taxPercent'][$i-1];
@@ -330,7 +330,7 @@
                   if( isset($form_data['itemDiscount'][$i-1]) && $form_data['itemDiscount'][$i-1] !== '' ) {
                     $item_discount = $form_data['itemDiscount'][$i-1];
                   } else {
-                    $item_discount = '';
+                    $item_discount = 0;
                   }                  
 
                   $billed_qty = $inward_qty-$free_qty;

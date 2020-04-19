@@ -169,37 +169,63 @@
           </div>
 
           <div class="form-group">
-            <div class="col-sm-12 col-md-4 col-lg-4">
-              <label class="control-label">Date of sale (dd-mm-yyyy)</label>
-                  <div class="input-append date" data-date="<?php echo $current_date ?>" data-date-format="dd-mm-yyyy">
-                    <input class="span2" value="<?php echo $current_date ?>" size="16" type="text" readonly name="saleDate" id="saleDate" />
-                    <span class="add-on"><i class="fa fa-calendar"></i></span>
+            <?php if( (int)$_SESSION['utype'] === 3): ?>
+              <div class="col-sm-12 col-md-4 col-lg-4">
+                <label class="control-label">Date of sale (dd-mm-yyyy)</label>
+                <div class="form-group">
+                  <div class="col-lg-12">
+                    <div class="input-append date" data-date="<?php echo $current_date ?>" data-date-format="dd-mm-yyyy">
+                      <input class="span2" value="<?php echo $current_date ?>" size="16" type="text" readonly name="saleDate" id="saleDate" />
+                      <span class="add-on"><i class="fa fa-calendar"></i></span>
+                    </div>
+                    <?php if(isset($errors['saleDate'])): ?>
+                      <span class="error"><?php echo $errors['saleDate'] ?></span>
+                    <?php endif; ?>                  
                   </div>
-                  <?php if(isset($errors['saleDate'])): ?>
-                    <span class="error"><?php echo $errors['saleDate'] ?></span>
-                  <?php endif; ?>                  
-            </div>
-
-            <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
-              <label class="control-label">Payment method</label>
-              <div class="select-wrap">
-                <select class="form-control" name="paymentMethod" id="paymentMethod">
-                  <?php 
-                      foreach($payment_methods as $key=>$value):
-                        if((int)$paymentMethod === $key) {
-                          $selected = 'selected="selected"';
-                        } else {
-                          $selected = '';
-                        }                        
-                  ?>
-                    <option value="<?php echo $key ?>" <?php echo $selected ?>><?php echo $value ?></option>
-                  <?php endforeach; ?>
-                </select>
-                <?php if(isset($errors['paymentMethod'])): ?>
-                  <span class="error"><?php echo $errors['paymentMethod'] ?></span>
-                <?php endif; ?>
+                </div>
               </div>
-            </div>
+            <?php else: ?>
+              <div class="col-sm-12 col-md-4 col-lg-4">
+                <label class="control-label">Date of sale (dd-mm-yyyy)</label>
+                <div class="form-group">
+                  <div class="col-lg-12" style="font-size: 18px; color: #225992"><?php echo $current_date ?></div>
+                </div>
+              </div>
+              <input type="hidden" name="saleDate" id="saleDate" value="<?php echo $current_date ?>" />
+            <?php endif; ?>
+
+            <?php if( (int)$paymentMethod === 0 && (int)$_SESSION['utype'] === 3 ): ?>
+              <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <label class="control-label">Payment method</label>
+                <div class="select-wrap">
+                  <select class="form-control" name="paymentMethod" id="paymentMethod">
+                    <?php 
+                        foreach($payment_methods as $key=>$value):
+                          if((int)$paymentMethod === $key) {
+                            $selected = 'selected="selected"';
+                          } else {
+                            $selected = '';
+                          }                        
+                    ?>
+                      <option value="<?php echo $key ?>" <?php echo $selected ?>>
+                        <?php echo $value ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                  <?php if(isset($errors['paymentMethod'])): ?>
+                    <span class="error"><?php echo $errors['paymentMethod'] ?></span>
+                  <?php endif; ?>
+                </div>
+              </div>
+            <?php else: ?>
+              <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
+                <label class="control-label">Payment method</label>
+                <div class="form-group">
+                  <div class="col-lg-12" style="font-size: 18px; color: #225992"><?php echo $payment_methods[$paymentMethod] ?></div>
+                </div>                
+                <input type="hidden" name="paymentMethod" id="paymentMethod" value="<?php echo $paymentMethod ?>" />
+              </div>
+            <?php endif; ?>
 
             <div class="col-sm-12 col-md-4 col-lg-4 m-bot15">
               <label class="control-label">Credit period (in days)</label>

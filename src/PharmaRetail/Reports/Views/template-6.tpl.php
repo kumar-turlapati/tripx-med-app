@@ -65,6 +65,7 @@
                 <div class="col-sm-12 col-md-3 col-lg-3">
                 <label class="control-label">&nbsp;</label>
                 <input type="hidden" id="reportHook" name="reportHook" value="<?php echo $reportHook ?>" />
+                <input type="hidden" id="ssv" name="ssv" value="<?php echo $ssv ?>" />
                 <?php include_once __DIR__."/../../../Layout/helpers/filter-buttons-js.helper.php" ?>
                 </div>
               </div>

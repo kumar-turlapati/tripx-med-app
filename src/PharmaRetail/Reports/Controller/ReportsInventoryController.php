@@ -936,6 +936,7 @@ class ReportsInventoryController
     $fromDate = $request->get('fromDate');
     $toDate = $request->get('toDate');
     $mode = $request->get('optionType');
+    $ssv = !is_null($request->get('ssv')) ? $request->get('ssv') : 0;
 
     # inititate Inventory Model
     $inven_api = new \PharmaRetail\Inventory\Model\Inventory;
@@ -973,6 +974,9 @@ class ReportsInventoryController
 
     $item_widths = array(10,61,15,17,17,17,17,19,17);
     $totals_width = $item_widths[0]+$item_widths[1];
+
+    // dump($total_items, count($total_items));
+    // exit;
 
     # start PDF printing.
     $pdf = PDF::getInstance();
@@ -1021,6 +1025,10 @@ class ReportsInventoryController
       $pdf->Cell($item_widths[6],6,$item_details['purchaseValue'],'RTB',0,'R');
       $pdf->Cell($item_widths[7],6,number_format($gross_profit,2),'RTB',0,'R');
       $pdf->Cell($item_widths[8],6,number_format($gross_profit_percent,2),'RTB',0,'R');
+
+      if($ssv > 0 && $tot_sold_value >= $ssv) {
+        break;
+      }
     }
     
     $pdf->Ln(12);

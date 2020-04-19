@@ -498,6 +498,7 @@ class ReportsController
                   'reportHook' => '/inventory-profitability',
                   'filter_types' => $filter_types,
                   'dropDownlabel' => 'Sale mode',
+                  'ssv' => !is_null($request->get('ssv')) ? (int)$request->get('ssv') : 0,
                 );
                 $controller_vars = array(
                   'page_title' => 'Inventory Profitability',

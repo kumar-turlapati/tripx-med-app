@@ -1005,7 +1005,8 @@ class ReportsInventoryController
     $pdf->SetFont('Arial','',9);
 
     $slno = 0;
-    $tot_sold_qty = $tot_sold_value = $tot_pur_value = $tot_gross_profit = 0; 
+    $tot_sold_qty = $tot_sold_value = $tot_pur_value = $tot_gross_profit = 0;
+    $partial_sales_value = 0; $got_partial_sales_value = false;
     foreach($total_items as $item_details) {
       $slno++;
 
@@ -1015,20 +1016,28 @@ class ReportsInventoryController
       $tot_sold_value += $item_details['soldValue'];
       $tot_pur_value += $item_details['purchaseValue'];
 
-      $pdf->Ln();
-      $pdf->Cell($item_widths[0],6,$slno,'LRTB',0,'R');
-      $pdf->Cell($item_widths[1],6,substr($item_details['itemName'],0,32),'RTB',0,'L');
-      $pdf->Cell($item_widths[2],6,$item_details['soldQty'],'RTB',0,'R');
-      $pdf->Cell($item_widths[3],6,$item_details['sellingPrice'],'RTB',0,'R');
-      $pdf->Cell($item_widths[4],6,$item_details['soldValue'],'RTB',0,'R');
-      $pdf->Cell($item_widths[5],6,$item_details['finalPurchaseRate'],'RTB',0,'R');
-      $pdf->Cell($item_widths[6],6,$item_details['purchaseValue'],'RTB',0,'R');
-      $pdf->Cell($item_widths[7],6,number_format($gross_profit,2),'RTB',0,'R');
-      $pdf->Cell($item_widths[8],6,number_format($gross_profit_percent,2),'RTB',0,'R');
-
-      if($ssv > 0 && $tot_sold_value >= $ssv) {
-        break;
+      if(!$got_partial_sales_value) {
+        $pdf->Ln();
+        $pdf->Cell($item_widths[0],6,$slno,'LRTB',0,'R');
+        $pdf->Cell($item_widths[1],6,substr($item_details['itemName'],0,32),'RTB',0,'L');
+        $pdf->Cell($item_widths[2],6,$item_details['soldQty'],'RTB',0,'R');
+        $pdf->Cell($item_widths[3],6,$item_details['sellingPrice'],'RTB',0,'R');
+        $pdf->Cell($item_widths[4],6,$item_details['soldValue'],'RTB',0,'R');
+        $pdf->Cell($item_widths[5],6,$item_details['finalPurchaseRate'],'RTB',0,'R');
+        $pdf->Cell($item_widths[6],6,$item_details['purchaseValue'],'RTB',0,'R');
+        $pdf->Cell($item_widths[7],6,number_format($gross_profit,2),'RTB',0,'R');
+        $pdf->Cell($item_widths[8],6,number_format($gross_profit_percent,2),'RTB',0,'R');
       }
+
+      if($ssv > 0 && $tot_sold_value >= $ssv && !$got_partial_sales_value) {
+        $partial_sales_value = $tot_sold_value;
+        $got_partial_sales_value = true;
+        // break;
+      }
+    }
+
+    if((int)$partial_sales_value > 0 && (int)$ssv > 0) {
+      $tot_sold_value = $partial_sales_value;
     }
     
     $pdf->Ln(12);
